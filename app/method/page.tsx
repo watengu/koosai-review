@@ -1,0 +1,106 @@
+import type { Metadata } from "next";
+import { vertical } from "@/config/vertical";
+
+export const metadata: Metadata = {
+  title: "評価方法について（採点式・口コミポリシー）",
+  description:
+    "総合スコアの採点式と重みの全文、評価軸の定義、口コミの収集・承認ポリシー、情報の確認手順を公開するページ。",
+};
+
+/**
+ * 評価方法ページ = 信頼担保の中核。
+ * 採点式と重みはバーティカル設定（=DB の review_axes）からそのまま描画し、
+ * 「サイトに書いてある式」と「実際に計算している式」がズレないようにする。
+ */
+export default function MethodPage() {
+  const axes = vertical.axes;
+  return (
+    <div className="space-y-10">
+      <section>
+        <h1 className="text-2xl font-bold">評価方法について</h1>
+        <p className="mt-3 text-sm leading-relaxed text-gray-700">
+          当サイトの順位は、このページで公開している採点式と重みだけで機械的に
+          算出しています。契約の有無（送客リンクの有無を含む）で順位を操作する
+          ことはありません。再計算に必要な情報はすべてこのページと各
+          {vertical.itemNoun}の詳細ページ（軸ごとの根拠・出典・確認日）にあります。
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">採点式</h2>
+        <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed">
+          <p className="font-mono">
+            総合スコア（100点満点） = Σ（軸スコア ÷ 満点 × 重み）÷ Σ（採点済み軸の重み）× 100
+          </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5">
+            <li>データが不足している軸は採点せず、分子・分母の両方から除外します。「口コミ収集中」と表示されている軸がそれです。</li>
+            <li>実投稿が集計に使われる軸は、承認済み口コミの平均値だけを使います。編集部がその軸に点数を付けることはありません。</li>
+            <li>スコアはデータ更新（料金改定の確認、口コミの承認）のたびに再計算します。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">評価軸と重み</h2>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[560px] border-collapse text-sm">
+            <thead>
+              <tr className="bg-brand text-left text-white">
+                <th className="p-2">評価軸</th>
+                <th className="p-2">重み</th>
+                <th className="p-2">出どころ</th>
+                <th className="p-2">定義</th>
+              </tr>
+            </thead>
+            <tbody>
+              {axes.map((a) => (
+                <tr key={a.key} className="border-b border-gray-200 align-top">
+                  <td className="p-2 font-bold">{a.label}</td>
+                  <td className="p-2">{a.weight}</td>
+                  <td className="p-2">{a.source === "review_avg" ? "実投稿の集計" : "編集部の一次確認"}</td>
+                  <td className="p-2">{a.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-gray-400">
+          ※ 重みを含む採点式は、変更する場合はこのページで変更後の式と変更日を明示します。
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">口コミの収集・承認ポリシー</h2>
+        <div className="mt-3 space-y-3 text-sm leading-relaxed text-gray-700">
+          <p>
+            口コミは投稿フォームからの利用者本人の申告のみを受け付け、承認制で掲載します。
+            掲載時には「投稿者申告に基づく口コミ（編集部で公開情報との矛盾を確認済み）」の
+            注記を付け、検証済みの体験であるかのような表現はしません。
+          </p>
+          <p className="font-bold">承認するもの / しないもの</p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>承認: 具体的な利用内容があり、料金・手続き・エリア等の公開情報と矛盾しないもの。</li>
+            <li>不承認: 個人情報が含まれるもの、宣伝目的と判断されるもの、誹謗中傷のみのもの、伝聞のみのもの。</li>
+          </ul>
+          <p className="font-bold">自作自演の禁止（運営ルール）</p>
+          <p>
+            運営者・関係者が利用者を装って口コミを書く行為、第三者に対価を渡して
+            口コミを書かせる行為は、景品表示法（ステマ規制・優良誤認）の観点から
+            全面禁止とし、当サイトでは行いません。対価と引き換えの投稿促進を行う
+            場合でも、その事実を開示しない形は採用しません。
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">情報の確認手順</h2>
+        <p className="mt-3 text-sm leading-relaxed text-gray-700">
+          {vertical.itemNoun}の料金・スペックは公式情報を一次確認し、確認した日を
+          「最終確認日」として各ページに表示します。金額が公式に確認できない項目は
+          「非公開」「未確認」と表示し、推測で埋めることはありません。
+          掲載対象は、関係条例の届出等が確認できるものに限ります。
+        </p>
+      </section>
+    </div>
+  );
+}
