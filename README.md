@@ -8,7 +8,7 @@
 （根拠資料: `~/workspace/personal-lane/koosai-club-site/design-2026-10-27.md`、
 検証: `~/workspace/personal-lane/research/koosai-club-review-deploy-check-2026-10-27.md`）。
 
-技術: Next.js (App Router) + TypeScript + Tailwind CSS + Supabase。
+技術: Next.js (App Router) + TypeScript + Tailwind CSS + Neon (Postgres)。
 ホスティングは未決（Vercel Pro / Cloudflare Pages 等）のため、特定ホスティング
 依存の機能は使っていません。
 
@@ -35,11 +35,11 @@
    `config/vertical.ts` の import 先を新しいファイルに切り替える。
    アプリ側のコードはすべて `vertical` を参照しているため、ページ側の変更は不要。
 3. **DB を用意する**
-   新規 Supabase プロジェクトに `supabase/schema.sql` を流し、
-   `supabase/seed.example.sql` を参考に、そのジャンルの評価軸だけを
+   新規 Neon プロジェクトに `neon/schema.sql` を流し、
+   `neon/seed.sql` を参考に、そのジャンルの評価軸だけを
    `review_axes` に投入する（口コミや対象のダミーデータは投入しない）。
 4. **環境変数を設定する**
-   `.env.example` をコピーして `.env.local` を作り、Supabase の URL とキーを入れる。
+   `.env.example` をコピーして `.env.local` を作り、Neon の接続文字列（DATABASE_URL）を入れる。
 5. **対象データを投入する**
    一次確認した対象（items）とスコア・根拠（item_scores）、送客リンク（links）を
    編集部作業として投入し、確認履歴を check_log に残す。
@@ -87,15 +87,15 @@ config/
   vertical.example.ts  バーティカル設定の型＋交際クラブ版の実例
   vertical.ts          現在有効な設定（差し替えポイント）
 lib/
-  supabase.ts        Supabase クライアント（anon / service_role）
+  db.ts              Neon クライアント（DATABASE_URL。サーバ専用）
   data.ts            データ取得層（未設定・失敗時は空に倒す）
   scoring.ts         採点ロジック（DB の ranking ビューと同式）
   simulator.ts       料金シミュレーターの計算
   format.ts          金額・日付・スペック値の表示整形
   types.ts           DB 行型
-supabase/
-  schema.sql         8テーブル＋ビュー＋RLS＋GRANT（汎用設計）
-  seed.example.sql   評価軸のシード例（交際クラブ版）
+neon/
+  schema.sql         8テーブル＋ビュー（汎用設計。アクセス制御はアプリ側クエリ条件）
+  seed.sql           評価軸のシード例（交際クラブ版）
 docs/
   deploy-checklist.md  デプロイ前チェックリスト（法務セーフ項目）
 ```
@@ -113,19 +113,19 @@ docs/
 | clicks | clicks |
 | check_log | check_log |
 
-詳細は `supabase/schema.sql` 冒頭のコメントにも対応表があります。
+詳細は `neon/schema.sql` 冒頭のコメントにも対応表があります。
 
 ## ローカル起動
 
 ```bash
 npm install
-cp .env.example .env.local   # Supabase の値を入れる（未設定でもページは開ける）
+cp .env.example .env.local   # DATABASE_URL を入れる（未設定でもページは開ける）
 npm run dev
 ```
 
 DB 未設定・未投入の状態では、各ページはエラーにならず「データがありません」の
-空状態を表示します。Supabase 側は SQL Editor で `schema.sql` →
-`seed.example.sql` の順に流してください（評価軸のシードだけは任意のジャンル用に
+空状態を表示します。Neon 側は SQL Editor で `neon/schema.sql` →
+`neon/seed.sql` の順に流してください（評価軸のシードだけは任意のジャンル用に
 書き換える）。
 
 ## 未決事項（勝手に確定させていないもの）
@@ -146,4 +146,4 @@ DB 未設定・未投入の状態では、各ページはエラーにならず�
 
 - 口コミの自作自演を助ける機能（ダミー生成・自動投稿など）は意図的に作っていません。
   追加もしないでください（景表法リスク＋サイトの看板「根拠の公開」と矛盾）。
-- `SUPABASE_SERVICE_ROLE_KEY` はサーバ専用です。ブラウザ側のコードに渡さないこと。
+- `DATABASE_URL` はサーバ専用です。NEXT_PUBLIC_ を付けず、ブラウザ側のコードに渡さないこと。

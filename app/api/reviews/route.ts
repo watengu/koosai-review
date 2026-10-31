@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import { getAnonClient } from "@/lib/supabase";
+import { sql } from "@/lib/db";
 
 /**
  * 口コミ投稿の受付。
  * - 検証: 必須項目、本文の長さ、軸別評価の範囲（1〜5）。
  * - ハニーポット（website 欄）に値があれば bot とみなし、成功を装って破棄する。
- * - 保存は anon クライアント経由。RLS で status='pending' 以外は弾かれるため、
- *   ここで approved を指定しても公開はされない（二重化）。
+ * - 保存はサーバ側の Neon 接続から status='pending' 固定で INSERT する。
+ *   公開側の読み取りは data.ts が status='approved' のみ・公開カラムのみに
+ *   限定しているため、pending の行が表示されることはない。
+ *   （旧 Supabase 版の RLS による担保は、クエリ条件側へ移管した。）
  * - CAPTCHA（Turnstile 等）は未決。本実装で追加する（deploy-checklist 参照）。
  */
 
@@ -65,26 +67,27 @@ export async function POST(req: Request) {
     }
   }
 
-  const sb = getAnonClient();
-  if (!sb) {
+  if (!sql) {
     return NextResponse.json(
       { ok: false, error: "現在投稿を受け付けていません" },
       { status: 503 },
     );
   }
 
-  const { error } = await sb.from("reviews").insert({
-    item_id: itemId,
-    status: "pending",
-    axis_ratings: axisRatings,
-    body,
-    author_age_range: clean(payload.author_age_range, MAX_LEN.short) || null,
-    author_area: clean(payload.author_area, MAX_LEN.short) || null,
-    used_period: clean(payload.used_period, MAX_LEN.short) || null,
-    contact_email: clean(payload.contact_email, MAX_LEN.email) || null,
-  });
-
-  if (error) {
+  try {
+    await sql`
+      insert into public.reviews (
+        item_id, status, axis_ratings, body,
+        author_age_range, author_area, used_period, contact_email
+      ) values (
+        ${itemId}::uuid, 'pending', ${JSON.stringify(axisRatings)}::jsonb, ${body},
+        ${clean(payload.author_age_range, MAX_LEN.short) || null},
+        ${clean(payload.author_area, MAX_LEN.short) || null},
+        ${clean(payload.used_period, MAX_LEN.short) || null},
+        ${clean(payload.contact_email, MAX_LEN.email) || null}
+      )
+    `;
+  } catch {
     return NextResponse.json(
       { ok: false, error: "保存に失敗しました。時間をおいて再度お試しください" },
       { status: 500 },

@@ -1,38 +1,45 @@
 import { NextResponse } from "next/server";
-import { getAdminClient, getAnonClient } from "@/lib/supabase";
+import { sql } from "@/lib/db";
 
 /**
  * 送客リンクのリダイレクト＆クリック計測。
  * - links テーブルから有効なリンクを解決し、clicks に1行記録して 302 する。
- * - clicks への書き込みは service_role 前提（RLS で anon の書き込み不可）。
- *   SUPABASE_SERVICE_ROLE_KEY が未設定の場合は計測をスキップして遷移だけ行う。
+ * - 書き込みはサーバ側の Neon 接続のみ（DATABASE_URL はブラウザへ出さない）。
+ *   DATABASE_URL 未設定時は DB を引けないため、トップへ遷移する
+ *   （旧 Supabase 版で anon 未設定だった場合と同じ倒れ方）。
  * - 遷移先URLは links の管理値のみを使う（オープンリダイレクトにしない）。
  */
 export async function GET(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  const anon = getAnonClient();
-  if (!anon) return NextResponse.redirect(new URL("/", req.url));
+  if (!sql) return NextResponse.redirect(new URL("/", req.url));
 
-  const { data: link } = await anon
-    .from("links")
-    .select("id,url")
-    .eq("id", params.id)
-    .eq("is_active", true)
-    .maybeSingle();
+  let link: { id: string; url: string } | null = null;
+  try {
+    const rows = (await sql`
+      select id, url from public.links
+      where id = ${params.id}::uuid and is_active = true
+      limit 1
+    `) as { id: unknown; url: unknown }[];
+    if (rows.length > 0) {
+      link = { id: String(rows[0].id), url: String(rows[0].url) };
+    }
+  } catch {
+    link = null;
+  }
 
   if (!link?.url) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  const admin = getAdminClient();
-  if (admin) {
-    await admin.from("clicks").insert({
-      link_id: link.id,
-      referrer: req.headers.get("referer"),
-      user_agent: req.headers.get("user-agent"),
-    });
+  try {
+    await sql`
+      insert into public.clicks (link_id, referrer, user_agent)
+      values (${link.id}::uuid, ${req.headers.get("referer")}, ${req.headers.get("user-agent")})
+    `;
+  } catch {
+    // 計測の失敗で遷移自体は止めない
   }
 
   return NextResponse.redirect(link.url, 302);
