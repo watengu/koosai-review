@@ -270,7 +270,7 @@ round(
 (sum((s.score / a.max_score) * a.weight) / nullif(sum(a.weight), 0) * 100)::numeric,
 1
 ) as total_score,
-count(s.score) as scored_axes,
+count(a.key) as scored_axes, -- 採点済み軸数: 有効な軸に一致したスコアのみ数える（scoring.ts の computeTotalScore と同じ定義。count(s.score) だと無効軸のスコアまで数えてしまう）
 (
 select count(*)
 from public.reviews r
