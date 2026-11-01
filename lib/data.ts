@@ -68,6 +68,7 @@ function mapItem(r: Row): Item {
     summary: (r.summary as string | null) ?? null,
     operator_name: (r.operator_name as string | null) ?? null,
     official_url: (r.official_url as string | null) ?? null,
+    image_url: (r.image_url as string | null) ?? null,
     price_join: toNumber(r.price_join),
     price_annual: toNumber(r.price_annual),
     price_per_use: toNumber(r.price_per_use),

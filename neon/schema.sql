@@ -66,6 +66,7 @@ name text not null,
 summary text,
 operator_name text,
 official_url text,
+image_url text, -- 画像スロット（2026-11-01 追加。/images/clubs/<slug>.jpg 等）
 price_join integer, -- 初期費用（例: 入会金）。非公開は null
 price_annual integer, -- 年額費用（例: 年会費）。非公開は null
 price_per_use integer, -- 1回あたり（例: セッティング料）。非公開は null

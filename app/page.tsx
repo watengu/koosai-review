@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getAxes, getRanking, getApprovedReviews } from "@/lib/data";
 import { vertical } from "@/config/vertical";
 import ItemCard from "@/components/ItemCard";
+import ProfileGallery from "@/components/ProfileGallery";
+import { sampleProfiles } from "@/config/profiles";
 import ReviewCard from "@/components/ReviewCard";
 
 export const revalidate = 300;
@@ -14,12 +16,24 @@ export default async function HomePage() {
   ]);
   const top = ranking.slice(0, 5);
   const itemNameById = new Map(ranking.map((r) => [r.item.id, r.item.name]));
+  const clubNameBySlug = new Map(ranking.map((r) => [r.item.slug, r.item.name]));
   const axisLabels = Object.fromEntries(axes.map((a) => [a.key, a.label]));
 
   return (
     <div className="space-y-12">
       <section>
-        <h1 className="text-2xl font-bold leading-snug">{vertical.tagline}</h1>
+        <figure>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/hero.jpg"
+            alt="銀座の夜のイメージ（サンプル）"
+            className="h-64 w-full rounded object-cover object-top sm:h-80"
+          />
+          <figcaption className="mt-1 text-right text-xs text-gray-400">
+            イメージ写真（サンプル）
+          </figcaption>
+        </figure>
+        <h1 className="mt-4 text-2xl font-bold leading-snug">{vertical.tagline}</h1>
         <p className="mt-3 text-gray-700">{vertical.description}</p>
         {vertical.sampleMode && (
           <p className="mt-3 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
@@ -73,6 +87,13 @@ export default async function HomePage() {
           {" / "}
           <Link href="/compare" className="text-brand underline">比較表で比べる</Link>
         </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">登録女性のイメージ（サンプル）</h2>
+        <div className="mt-4">
+          <ProfileGallery profiles={sampleProfiles} clubNameBySlug={clubNameBySlug} />
+        </div>
       </section>
 
       <section>

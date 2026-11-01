@@ -13,6 +13,8 @@ import { formatDate, formatSpecValue, formatYen } from "@/lib/format";
 import { vertical } from "@/config/vertical";
 import ScoreBar from "@/components/ScoreBar";
 import ReviewCard from "@/components/ReviewCard";
+import ProfileGallery from "@/components/ProfileGallery";
+import { profilesForClub } from "@/config/profiles";
 
 export const revalidate = 300;
 
@@ -50,6 +52,14 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
     <div className="space-y-10">
       <section>
         <h1 className="text-2xl font-bold">{item.name}</h1>
+        {item.image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.image_url}
+            alt={`${item.name}のイメージ（サンプル）`}
+            className="mt-4 h-64 w-full rounded object-cover object-top"
+          />
+        )}
         {item.summary && <p className="mt-3 text-gray-700">{item.summary}</p>}
         <p className="mt-3 text-sm text-gray-500">
           総合スコア:{" "}
@@ -159,6 +169,15 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
           で公開しています。
         </p>
       </section>
+
+      {profilesForClub(item.slug).length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold">登録女性のイメージ（サンプル）</h2>
+          <div className="mt-4">
+            <ProfileGallery profiles={profilesForClub(item.slug)} />
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="text-xl font-bold">口コミ（承認済み・{reviews.length}件）</h2>

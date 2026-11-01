@@ -123,3 +123,7 @@ from (values
   ('sample-tsukikage', 'safety', 4.5, '本人確認書類の提出が必須で、審査が厳格という設定です。')
 ) as s(slug, axis_key, score, basis)
 join public.items i on i.slug = s.slug;
+
+-- 画像スロット（2026-11-01 追加）: クラブ画像は /images/clubs/<slug>.jpg に統一配置
+update public.items set image_url = '/images/clubs/' || slug || '.jpg'
+where slug like 'sample-%';

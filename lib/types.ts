@@ -10,6 +10,7 @@ export interface Item {
   summary: string | null;
   operator_name: string | null;
   official_url: string | null;
+  image_url: string | null;
   price_join: number | null;
   price_annual: number | null;
   price_per_use: number | null;

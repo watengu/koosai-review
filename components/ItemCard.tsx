@@ -8,6 +8,15 @@ export default function ItemCard({ ranked, rank }: { ranked: RankedItem; rank?: 
   const { item, totalScore, reviewCount } = ranked;
   return (
     <article className="rounded border border-gray-200 bg-white p-4 shadow-sm">
+      {item.image_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.image_url}
+          alt={`${item.name}のイメージ（サンプル）`}
+          className="mb-3 h-40 w-full rounded object-cover object-top"
+          loading="lazy"
+        />
+      )}
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-lg font-bold">
           {rank !== undefined && <span className="mr-2 text-brand-accent">{rank}位</span>}
