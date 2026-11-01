@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { vertical } from "@/config/vertical";
 
 export const metadata: Metadata = {
@@ -90,6 +91,55 @@ export default function MethodPage() {
             場合でも、その事実を開示しない形は採用しません。
           </p>
         </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold">口コミが掲載されるまでの流れ</h2>
+        <ol className="mt-4 space-y-0 text-sm">
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-white">1</span>
+            <div className="pb-5">
+              <p className="font-bold">投稿（利用者本人）</p>
+              <p className="mt-1 text-gray-700">
+                投稿フォームから、利用した{vertical.itemNoun}・時期・評価軸ごとの点数と本文を送ります。
+                運営者や{vertical.itemNoun}の関係者による投稿は対象外です。
+              </p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-white">2</span>
+            <div className="pb-5">
+              <p className="font-bold">承認審査（編集部）</p>
+              <p className="mt-1 text-gray-700">
+                料金・手続き・エリアなどの公開情報との矛盾、個人情報の混入、宣伝目的や誹謗中傷のみでないかを
+                上のポリシーに沿って確認します。通過しない投稿は掲載されません。
+              </p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-white">3</span>
+            <div className="pb-5">
+              <p className="font-bold">掲載と集計への反映</p>
+              <p className="mt-1 text-gray-700">
+                承認された口コミだけが掲載され、件数として数えられます。評価軸のうち実投稿の集計を使う軸は、
+                承認済みの投稿の平均として各{vertical.itemNoun}ページに分布とあわせて表示します。
+                投稿が無い{vertical.itemNoun}は「データ不足」と表示し、推測では埋めません。
+              </p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-white">4</span>
+            <div>
+              <p className="font-bold">是正の窓口（掲載先・関係者）</p>
+              <p className="mt-1 text-gray-700">
+                掲載内容に事実誤認や権利侵害がある場合は、
+                <Link href="/removal" className="text-brand underline">削除要請窓口</Link>
+                からご連絡いただけます。要請を受けた内容は確認のうえ、ポリシーに沿って対応します。
+                口コミそのものを金銭や契約で削除・改変することはありません。
+              </p>
+            </div>
+          </li>
+        </ol>
       </section>
 
       <section>

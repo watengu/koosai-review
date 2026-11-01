@@ -104,6 +104,21 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
               公式サイトを見る
             </a>
           )}
+          {links.length === 0 && !item.official_url && vertical.sampleMode && (
+            <div className="w-full rounded border border-dashed border-gray-300 bg-gray-50 p-4">
+              <span
+                aria-disabled="true"
+                className="inline-block cursor-not-allowed rounded bg-gray-300 px-5 py-2 font-bold text-gray-500"
+              >
+                公式サイトで確認する
+              </span>
+              <p className="mt-2 text-xs text-gray-500">
+                ※ これは送客ボタンの見本表示です（サンプルのためリンクは無効です）。
+                実運用では、このボタンから各{vertical.itemNoun}の公式ページへ進み、
+                クリック数が{vertical.itemNoun}ごとに計測されます。
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -13,6 +13,7 @@ export default function Footer() {
           <Link href="/removal" className="hover:underline">削除要請窓口</Link>
           <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
           <Link href="/reviews/post" className="hover:underline">口コミを投稿する</Link>
+          <Link href="/for-business" className="hover:underline">事業者の方へ（掲載のご案内）</Link>
         </nav>
         <p className="mt-4 text-xs text-gray-400">
           掲載情報は編集部が一次確認した時点のものです。最新情報は各{vertical.itemNoun}の公式情報でご確認ください。
