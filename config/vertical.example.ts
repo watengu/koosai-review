@@ -56,6 +56,14 @@ export interface VerticalConfig {
   id: string;
   /** サイト名（仮名可。その場合は仮である旨をコメントで明記する） */
   siteName: string;
+  /**
+   * サンプルモード。true の間は全ページに sampleNotice のバナーを表示し、
+   * 掲載データが架空のサンプルであることを明示する。
+   * 実データ投入時に false へ切り替えるとバナーと案内文が外れる。
+   */
+  sampleMode: boolean;
+  /** サンプルモード時に表示する明示文（バナーとホームの案内に使う） */
+  sampleNotice: string;
   /** トップの見出し・説明文 */
   tagline: string;
   description: string;
@@ -95,8 +103,12 @@ export interface VerticalConfig {
 
 export const koosaiClubVertical: VerticalConfig = {
   id: "koosai-club",
-  // 仮: サイト名は未決（設計書§10）。仮名として置く。
-  siteName: "交際クラブ比較案内（仮）",
+  // サイト名は「交際クラブ比較案内」に確定（2026-11-01 Ao 決定。「（仮）」を外した）
+  siteName: "交際クラブ比較案内",
+  // デモ公開中はサンプルモード ON。実データ投入時に false に切り替える。
+  sampleMode: true,
+  sampleNotice:
+    "現在、デモ用のサンプルデータを表示しています。掲載中のクラブ名・料金・順位はすべて架空のものです。",
   tagline: "男性向けに、根拠を全部開示して比較する交際クラブ案内所",
   description:
     "料金総額はシミュレーターで試算でき、順位は公開した採点式で決まり、口コミは承認制の実投稿だけを載せます。",

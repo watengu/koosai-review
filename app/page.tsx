@@ -21,6 +21,13 @@ export default async function HomePage() {
       <section>
         <h1 className="text-2xl font-bold leading-snug">{vertical.tagline}</h1>
         <p className="mt-3 text-gray-700">{vertical.description}</p>
+        {vertical.sampleMode && (
+          <p className="mt-3 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+            現在はデモ用のサンプルデータで動作をご確認いただけます。掲載中の
+            {vertical.itemNoun}名・料金・順位はすべて架空のもので、実在の
+            {vertical.itemNoun}の情報ではありません。
+          </p>
+        )}
         <ul className="mt-4 grid gap-3 sm:grid-cols-3">
           <li className="rounded border border-gray-200 p-3 text-sm">
             <span className="font-bold">採点式を全公開</span>
@@ -79,12 +86,18 @@ export default async function HomePage() {
               axisLabels={axisLabels}
             />
           ))}
-          {latestReviews.length === 0 && (
-            <p className="text-sm text-gray-500">
-              まだ承認済みの口コミがありません。
-              <Link href="/reviews/post" className="text-brand underline">口コミを投稿する</Link>
-            </p>
-          )}
+          {latestReviews.length === 0 &&
+            (vertical.sampleMode ? (
+              <p className="text-sm text-gray-500">
+                現在、実投稿の受付準備中です。口コミは実在の利用者からの投稿のみを掲載するため、
+                架空の口コミは掲載しません。
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">
+                まだ承認済みの口コミがありません。
+                <Link href="/reviews/post" className="text-brand underline">口コミを投稿する</Link>
+              </p>
+            ))}
         </div>
       </section>
     </div>

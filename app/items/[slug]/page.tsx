@@ -122,8 +122,9 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
           </tbody>
         </table>
         <p className="mt-2 text-xs text-gray-400">
-          ※ 編集部が公式情報を一次確認した内容です（編集部調査）。金額は確認時点のもので、
-          最新情報は公式情報をご確認ください。
+          {vertical.sampleMode
+            ? "※ 現在表示しているのはデモ用のサンプルデータです。実在のクラブの情報ではありません。"
+            : "※ 編集部が公式情報を一次確認した内容です（編集部調査）。金額は確認時点のもので、最新情報は公式情報をご確認ください。"}
         </p>
       </section>
 
