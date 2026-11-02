@@ -2,67 +2,93 @@ import Link from "next/link";
 import { getAxes, getRanking, getApprovedReviews } from "@/lib/data";
 import { vertical } from "@/config/vertical";
 import { formatDate, formatYen } from "@/lib/format";
-import ItemCard from "@/components/ItemCard";
-import ProfileGallery from "@/components/ProfileGallery";
-import { sampleProfiles } from "@/config/profiles";
 import ReviewCard from "@/components/ReviewCard";
 
 export const revalidate = 300;
 
+/** B3「表がFV」: FVで結論と総額を出し、比較表＋採点式を入口に内蔵するロングLP。 */
 export default async function HomePage() {
   const [ranking, latestReviews, axes] = await Promise.all([
     getRanking(),
     getApprovedReviews({ limit: 5 }),
     getAxes(),
   ]);
-  const top = ranking.slice(0, 5);
   const itemNameById = new Map(ranking.map((r) => [r.item.id, r.item.name]));
-  const clubNameBySlug = new Map(ranking.map((r) => [r.item.slug, r.item.name]));
   const axisLabels = Object.fromEntries(axes.map((a) => [a.key, a.label]));
-  const weightSummary = axes.map((a) => `${a.label} ${a.weight}`).join(" / ");
+  const weightSummary = axes.map((a) => `${a.label}${a.weight}`).join("／");
+  const fullPublic = ranking.filter(
+    (r) => r.item.price_join !== null && r.item.price_annual !== null && r.item.price_per_use !== null,
+  ).length;
+  const lastChecked = ranking
+    .map((r) => r.item.last_checked_at)
+    .filter((d): d is string => Boolean(d))
+    .sort()
+    .at(-1);
+  const annualTotal = (join: number | null, annual: number | null, perUse: number | null) =>
+    join === null || annual === null || perUse === null ? null : join + annual + perUse * 24;
+  const evidence = ["sample-lumiere", "sample-rin"]
+    .map((slug) => ranking.find((r) => r.item.slug === slug))
+    .filter((r) => r !== undefined);
 
   return (
-    <div className="space-y-12">
-      {/* FV: 写真＋約束＋CTAだけに圧縮（特徴は下部へ移動） */}
-      <section>
-        <figure>
+    <div className="space-y-14">
+      {/* FV: 結論＋強い写真1枚＋実測カウント */}
+      <section className="flex flex-col gap-6 md:flex-row">
+        <div className="md:w-[57%]">
+          <h1 className="text-3xl font-bold leading-snug">
+            面談に行く前に、<span className="text-[#C73E2C]">総額は分かります。</span>
+            <br />
+            {vertical.itemNoun}
+            {ranking.length}社を、料金で比べました。
+          </h1>
+          <p className="mt-4 leading-relaxed text-gray-700">
+            入会金だけを見て決めると、総額で負けます。このページは全社の料金を確認し、
+            あなたの回数で年間総額まで計算して並べたものです。採点式は全文公開。
+            順位は契約では動きません。
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2 text-sm">
+            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
+              <b className="text-lg text-brand">{ranking.length}</b> 社を公式確認（サンプル）
+            </span>
+            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
+              <b className="text-lg text-brand">{fullPublic}</b> 社が3項目すべて公開
+            </span>
+            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
+              <b className="text-lg text-brand">{lastChecked ? formatDate(lastChecked) : "—"}</b>{" "}
+              最終確認日を全社表示
+            </span>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="#conclusion" className="rounded bg-brand px-5 py-2 font-bold text-white">
+              結論の表を見る
+            </Link>
+            <Link
+              href="/simulator"
+              className="rounded border border-brand px-5 py-2 font-bold text-brand"
+            >
+              自分の回数で試算する
+            </Link>
+          </div>
+        </div>
+        <figure className="md:w-[43%]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/hero.jpg"
             alt="銀座の夜のイメージ（サンプル）"
-            className="h-64 w-full rounded object-cover object-top sm:h-80"
+            className="h-64 w-full rounded object-cover object-top md:h-[330px]"
           />
           <figcaption className="mt-1 text-right text-xs text-gray-400">
             イメージ写真（サンプル）
           </figcaption>
         </figure>
-        <h1 className="mt-4 text-2xl font-bold leading-snug">{vertical.tagline}</h1>
-        <p className="mt-3 text-gray-700">{vertical.description}</p>
-        {vertical.sampleMode && (
-          <p className="mt-3 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
-            現在はデモ用のサンプルデータで動作をご確認いただけます。掲載中の
-            {vertical.itemNoun}名・料金・順位はすべて架空のもので、実在の
-            {vertical.itemNoun}の情報ではありません。
-          </p>
-        )}
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/simulator" className="rounded bg-brand px-5 py-2 font-bold text-white">
-            料金シミュレーターで総額を比べる
-          </Link>
-          <Link href="#compare" className="rounded border border-brand px-5 py-2 font-bold text-brand">
-            比較表を見る
-          </Link>
-        </div>
       </section>
 
-      {/* P2: 比較表＋採点式の要約をLP内に内蔵 */}
-      <section id="compare">
-        <h2 className="text-xl font-bold">料金と評価の比較</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          編集部が公式情報を一次確認した料金と総合スコアの横断比較です。「非公開」は推測で埋めていません。
-        </p>
+      {/* 結論の表＋採点式 */}
+      <section id="conclusion">
+        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">結論の表</p>
+        <h2 className="mt-2 text-xl font-bold">比べるのは入会金ではなく、総額です。</h2>
         <div className="mt-4 hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+          <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr className="bg-brand text-left text-white">
                 <th className="p-2">{vertical.itemNoun}</th>
@@ -70,98 +96,153 @@ export default async function HomePage() {
                 <th className="p-2">{vertical.priceModel.joinLabel}</th>
                 <th className="p-2">{vertical.priceModel.annualLabel}</th>
                 <th className="p-2">{vertical.priceModel.perUseLabel}</th>
+                <th className="p-2">年間総額（月2回）</th>
                 <th className="p-2">最終確認日</th>
               </tr>
             </thead>
             <tbody>
-              {ranking.map(({ item, totalScore }) => (
-                <tr key={item.id} className="border-b border-gray-200 align-top">
-                  <td className="p-2 font-bold">
-                    <Link href={`/items/${item.slug}`} className="text-brand hover:underline">
-                      {item.name}
-                    </Link>
-                  </td>
-                  <td className="p-2">{totalScore !== null ? totalScore.toFixed(1) : "採点中"}</td>
-                  <td className="p-2">{formatYen(item.price_join)}</td>
-                  <td className="p-2">{formatYen(item.price_annual)}</td>
-                  <td className="p-2">{formatYen(item.price_per_use)}</td>
-                  <td className="p-2">{formatDate(item.last_checked_at)}</td>
-                </tr>
-              ))}
+              {ranking.map(({ item, totalScore }) => {
+                const total = annualTotal(item.price_join, item.price_annual, item.price_per_use);
+                return (
+                  <tr key={item.id} className="border-b border-gray-200 align-top">
+                    <td className="p-2 font-bold">
+                      <Link href={`/items/${item.slug}`} className="text-brand hover:underline">
+                        {item.name}
+                      </Link>
+                    </td>
+                    <td className="p-2 font-bold text-[#C73E2C]">
+                      {totalScore !== null ? totalScore.toFixed(1) : "—"}
+                    </td>
+                    <td className="p-2">{formatYen(item.price_join)}</td>
+                    <td className="p-2">{formatYen(item.price_annual)}</td>
+                    <td className="p-2">{formatYen(item.price_per_use)}</td>
+                    <td className="p-2 font-bold">{total !== null ? formatYen(total) : "試算不可"}</td>
+                    <td className="p-2">{formatDate(item.last_checked_at)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
         <p className="mt-3 text-sm text-gray-500 md:hidden">
-          スマートフォンでは下のランキングカードで比較できます。全項目の横断比較は
+          スマートフォンでは
           <Link href="/compare" className="text-brand underline">比較表ページ</Link>
-          にあります。
+          で全項目を比べられます。
         </p>
-        <div className="mt-4 rounded border border-gray-200 bg-gray-50 p-4 text-sm">
-          <p className="font-bold">採点式の要約</p>
-          <p className="mt-1 text-gray-700">
-            総合スコアは各評価軸（1.0〜5.0）の重み付き平均です。重みは
-            {weightSummary ? ` ${weightSummary}` : " 評価方法ページに記載"}
-            。順位はこの式だけで決まり、契約や掲載料の有無では動きません。式の全文と根拠の開示方法は
-            <Link href="/method" className="text-brand underline">評価方法ページ</Link>
-            に公開しています。
-          </p>
-          <p className="mt-2">
-            <Link href="/compare" className="text-brand underline">比較表（全項目）で比べる</Link>
-            {" / "}
-            <Link href="/simulator" className="text-brand underline">自分の回数で総額を試算する</Link>
-          </p>
+        <div className="mt-4 rounded border-l-4 border-[#C73E2C] bg-gray-50 p-4 text-sm leading-relaxed">
+          <b>この表の採点式</b>：総合スコア＝評価軸（{weightSummary}）の重み付き集計（100点満点）。
+          料金が非公開の社は「試算不可」とし、順位の根拠は
+          <Link href="/method" className="text-brand underline">評価方法ページ</Link>
+          で全公開します。契約で順位は動きません。
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div className="rounded border border-gray-200 p-4">
+            <p className="font-bold">総額を決めるのは、会うたびの料金</p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              入会金と年会費は一度きり。セッティング料は会う回数だけ積み上がります。
+              だから比較は「自分の回数での総額」でしか意味を持ちません。
+            </p>
+          </div>
+          <div className="rounded border border-gray-200 p-4">
+            <p className="font-bold">非公開は、非公開と書く</p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              公式で金額を確認できない社は推測で埋めません。
+              「面談まで総額が分からない」こと自体を、判断材料として表示します。
+            </p>
+          </div>
+          <div className="rounded border border-gray-200 p-4">
+            <p className="font-bold">確認日を、全社に出す</p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              料金は変わります。いつの情報か分からない比較表は信用できません。
+              全社に最終確認日を付けています。
+            </p>
+          </div>
         </div>
       </section>
 
+      {/* 中身の証拠 */}
       <section>
-        <h2 className="text-xl font-bold">総合ランキング（上位5件）</h2>
-        <div className="mt-4 space-y-4">
-          {top.map((r, i) => (
-            <ItemCard key={r.item.id} ranked={r} rank={i + 1} />
+        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">中身の証拠</p>
+        <h2 className="mt-2 text-xl font-bold">各社のページには、根拠まで載っています。</h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          {evidence.map(({ item, totalScore }) => (
+            <article
+              key={item.id}
+              className="flex overflow-hidden rounded border border-gray-200"
+            >
+              {item.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.image_url}
+                  alt={`${item.name}のイメージ（サンプル）`}
+                  className="w-40 shrink-0 object-cover"
+                />
+              )}
+              <div className="p-4">
+                <h3 className="text-lg font-bold">
+                  <Link href={`/items/${item.slug}`} className="hover:underline">
+                    {item.name}
+                  </Link>
+                </h3>
+                <p className="mt-1 font-bold text-[#C73E2C]">
+                  総合 {totalScore !== null ? totalScore.toFixed(1) : "—"} / 100
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.summary}</p>
+                <p className="mt-2 text-xs text-gray-400">
+                  根拠は詳細ページで軸ごとに開示｜最終確認日 {formatDate(item.last_checked_at)}
+                </p>
+              </div>
+            </article>
           ))}
-          {top.length === 0 && (
-            <p className="text-sm text-gray-500">
-              まだ掲載データがありません（編集部が一次確認した{vertical.itemNoun}から順次掲載します）。
-            </p>
-          )}
         </div>
         <p className="mt-4">
-          <Link href="/ranking" className="text-brand underline">ランキング全文を見る</Link>
+          <Link href="/ranking" className="text-brand underline">
+            ランキング全文を見る
+          </Link>
         </p>
       </section>
 
-      {/* P5: 特徴3点はFVからここへ移動 */}
-      <section>
-        <h2 className="text-xl font-bold">このサイトの約束</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-          <li className="rounded border border-gray-200 p-3 text-sm">
-            <span className="font-bold">採点式を全公開</span>
-            <br />
-            順位は<Link href="/method" className="text-brand underline">評価方法ページ</Link>で
-            公開した式と重みだけで決まります。契約の有無で順位は動きません。
-          </li>
-          <li className="rounded border border-gray-200 p-3 text-sm">
-            <span className="font-bold">料金シミュレーター</span>
-            <br />
-            利用頻度から{vertical.itemNoun}ごとの総額を試算して比べられます。
-          </li>
-          <li className="rounded border border-gray-200 p-3 text-sm">
-            <span className="font-bold">口コミは実投稿のみ</span>
-            <br />
-            承認制の利用者投稿だけを掲載します。運営側が書いた口コミは載せません。
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-bold">登録女性のイメージ（サンプル）</h2>
-        <div className="mt-4">
-          <ProfileGallery profiles={sampleProfiles} clubNameBySlug={clubNameBySlug} />
+      {/* 流れ（シミュレーター） */}
+      <section className="rounded bg-brand p-6 text-white md:p-8">
+        <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">流れ</p>
+        <h2 className="mt-2 text-xl font-bold">あなたの回数で、総額を出してから決める。</h2>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div className="rounded border border-white/25 bg-white/10 p-4">
+            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 1</p>
+            <p className="mt-2 font-bold">回数を決める</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-200">
+              月1回か、月2回か。会うペースで総額は大きく変わります。
+            </p>
+          </div>
+          <div className="rounded border border-white/25 bg-white/10 p-4">
+            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 2</p>
+            <p className="mt-2 font-bold">総額を試算する</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-200">
+              シミュレーターが全社の年間総額を並べ替えます。非公開の社は試算不可と出ます。
+            </p>
+          </div>
+          <div className="rounded border border-white/25 bg-white/10 p-4">
+            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 3</p>
+            <p className="mt-2 font-bold">公式で確認する</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-200">
+              候補を絞ったら、各クラブ公式で最新情報を確かめて申し込みます。
+            </p>
+          </div>
         </div>
+        <p className="mt-5">
+          <Link
+            href="/simulator"
+            className="inline-block rounded bg-white px-5 py-2 font-bold text-brand"
+          >
+            料金シミュレーターで試算する
+          </Link>
+        </p>
       </section>
 
+      {/* 口コミ（実投稿のみ・枠組み維持） */}
       <section>
-        <h2 className="text-xl font-bold">新着口コミ（承認済み）</h2>
+        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">口コミ</p>
+        <h2 className="mt-2 text-xl font-bold">口コミは、実投稿だけを数えます。</h2>
         <div className="mt-4 space-y-4">
           {latestReviews.map((review) => (
             <ReviewCard
@@ -175,7 +256,9 @@ export default async function HomePage() {
             (vertical.sampleMode ? (
               <p className="text-sm text-gray-500">
                 現在、実投稿の受付準備中です。口コミは実在の利用者からの投稿のみを掲載するため、
-                架空の口コミは掲載しません。
+                架空の口コミは掲載しません。投稿から掲載までの流れは
+                <Link href="/method" className="text-brand underline">評価方法ページ</Link>
+                に公開しています。
               </p>
             ) : (
               <p className="text-sm text-gray-500">
@@ -186,16 +269,44 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* P1: 事業者向けバンド */}
-      <section className="rounded border border-brand/30 bg-brand/5 p-5">
-        <h2 className="text-lg font-bold">{vertical.itemNoun}運営者の方へ</h2>
-        <p className="mt-2 text-sm text-gray-700">
-          掲載の仕組み、順位の決まり方、口コミの運用、送客の計測方法を事業者向けにまとめています。
-          このページのサンプル掲載が、そのまま御社の掲載イメージです。
-        </p>
-        <p className="mt-3">
-          <Link href="/for-business" className="rounded border border-brand px-4 py-2 font-bold text-brand">
-            事業者の方へ（掲載のご案内）
+      {/* FAQ */}
+      <section>
+        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">よくある質問</p>
+        <h2 className="mt-2 text-xl font-bold">申し込む前の、当然の疑問に答えます。</h2>
+        <div className="mt-5 space-y-6">
+          <div className="border-t border-gray-200 pt-4">
+            <p className="font-bold">Q. なぜ順位を信用できるのですか？</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-600">
+              採点式と重みを全文公開しているからです。同じ計算は誰でもやり直せます。
+              契約で順位が動くなら、その時点でこのサイトの存在理由が消えます。
+            </p>
+          </div>
+          <div className="border-t border-gray-200 pt-4">
+            <p className="font-bold">Q. お手当は総額に入っていますか？</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-600">
+              入っていません。総額はクラブへ払う費用のみです。女性へ直接渡すお手当は
+              当事者間で決まるものなので、相場として数字は出しません。
+            </p>
+          </div>
+          <div className="border-t border-gray-200 pt-4">
+            <p className="font-bold">Q. 口コミはありますか？</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-600">
+              承認制の実投稿のみを載せる設計です。運営が書いた口コミは載せません。
+              投稿が無い社は「データ不足」と表示します。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 着地CTA */}
+      <section className="rounded bg-gray-50 px-6 py-12 text-center">
+        <p className="text-2xl font-bold leading-relaxed">入会金の安さで、選ばないでください。</p>
+        <p className="mt-6">
+          <Link
+            href="#conclusion"
+            className="inline-block rounded bg-[#C73E2C] px-8 py-3 font-bold text-white"
+          >
+            総額で比べる（結論の表へ）
           </Link>
         </p>
       </section>
