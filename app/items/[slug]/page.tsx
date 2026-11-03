@@ -168,14 +168,21 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
                 <td className="p-2">{item.specs.member_rank_access as string}</td>
               </tr>
             )}
-            {vertical.specFields.map((f) => (
-              <tr key={f.key} className="border-b border-gray-200">
-                <th className="bg-gray-50 p-2 text-left">
-                  {typeof item.specs?.[`${f.key}_label`] === "string" ? (item.specs[`${f.key}_label`] as string) : f.label}
-                </th>
-                <td className="p-2">{formatSpecValue(item.specs?.[f.key], f.format)}</td>
-              </tr>
-            ))}
+            {vertical.specFields.map((f) => {
+              const value = item.specs?.[f.key];
+              // hide_unconfirmed_specs が立つクラブ（東京Ritz）では、値が無い行は行ごと出さない
+              if (item.specs?.hide_unconfirmed_specs === true && (value === null || value === undefined)) {
+                return null;
+              }
+              return (
+                <tr key={f.key} className="border-b border-gray-200">
+                  <th className="bg-gray-50 p-2 text-left">
+                    {typeof item.specs?.[`${f.key}_label`] === "string" ? (item.specs[`${f.key}_label`] as string) : f.label}
+                  </th>
+                  <td className="p-2">{formatSpecValue(value, f.format)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         <p className="mt-2 text-xs text-gray-400">
