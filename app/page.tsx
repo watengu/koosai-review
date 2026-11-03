@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { getRanking } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 /**
  * ゴール再現版ホーム（ゴール: aijin-billionaire.com の区間構成を再現し、
@@ -38,28 +41,52 @@ function H2({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 掲載状態に連動する（取り下げ＝is_published=false のクラブはホームからも消える）。
+  // 取得に失敗した場合は全クラブ表示にフォールバックし、ホームを空白にしない。
+  const ranking = await getRanking().catch(() => []);
+  const published = ranking.length
+    ? new Set(ranking.map((r) => r.item.slug))
+    : new Set(clubs.map((c) => c.slug));
+  const shown = clubs.filter((c) => published.has(c.slug));
+  const top = shown[0];
+  const total = shown.length;
+  const realShown = shown.filter((c) => !c.slug.startsWith("sample-"));
+  const ritzShown = published.has("tokyo-ritz");
+  const classyShown = published.has("minami-aoyama-classy");
+  const othersShown = others.filter((o) => published.has(o.slug) && o.slug !== top?.slug);
+  const realOthers = othersShown.filter((o) => !o.slug.startsWith("sample-"));
   return (
     <div className="leading-loose">
       <h1 className="text-2xl font-bold leading-relaxed">
-        交際クラブおすすめ10社比較｜根拠を全部開示して選ぶ
+        交際クラブおすすめ{total}社比較｜根拠を全部開示して選ぶ
       </h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/images/hero.jpg" alt="銀座の夜のイメージ（サンプル）" className="mt-4 w-full rounded" />
       <p className="mt-1 text-right text-xs text-gray-400">イメージ写真（サンプル）</p>
 
       <p className="mt-4">交際クラブって、実際どこがいいのか分かりにくいですよね。料金はクラブごとに公開の仕方が違い、入会金だけ見ても総額は分かりません。</p>
-      <p className="mt-3">このページでは、編集部が10社の料金・スペックを同じ条件でそろえて確認し、「結局どこがどう違うのか」の結論を出します。採点式は全文公開し、順位は契約の有無で操作しません。確認できなかった項目は、推測で埋めず、項目ごと表示しません。</p>
-      <p className="mt-3 text-sm text-gray-500">※掲載中の10社のうち、実在クラブは「実在・公式確認済み」と表示した東京Ritzと南青山Classyの2社で、残り8社はデモ用のサンプルです。掲載順位は公開した採点式のみで決定します。</p>
+      <p className="mt-3">このページでは、編集部が{total}社の料金・スペックを同じ条件でそろえて確認し、「結局どこがどう違うのか」の結論を出します。採点式は全文公開し、順位は契約の有無で操作しません。確認できなかった項目は、推測で埋めず、項目ごと表示しません。</p>
+      <p className="mt-3 text-sm text-gray-500">※掲載中の{total}社のうち、実在クラブは「実在・公式確認済み」と表示した{realShown.map((c) => c.name).join("と")}の{realShown.length}社で、残り{total - realShown.length}社はデモ用のサンプルです。掲載順位は公開した採点式のみで決定します。</p>
 
+      {top?.slug === "tokyo-ritz" ? (
+        <>
       <H2>結論：編集部が全項目を確認して選んだ交際クラブは東京Ritz</H2>
-      <p className="mt-4"><strong>迷ったら、まずは総合1位の東京Ritzから検討してください。</strong>10社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのが、この実在クラブです。理由は大きく3つあります。</p>
-      <p className="mt-3"><strong>1つ目は、総合スコアが10社で最も高いこと。</strong>総合 93.2 / 100。料金の総額、料金の公開度、スタッフ対応、会員層などの8つの軸に、公式サイトで確認できる実データを当てて集計した結果です。式と重み、軸ごとの根拠はこのページの下と評価方法ページ、詳細ページで全公開しています。</p>
+      <p className="mt-4"><strong>迷ったら、まずは総合1位の東京Ritzから検討してください。</strong>{total}社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのが、この実在クラブです。理由は大きく3つあります。</p>
+      <p className="mt-3"><strong>1つ目は、総合スコアが{total}社で最も高いこと。</strong>総合 93.2 / 100。料金の総額、料金の公開度、スタッフ対応、会員層などの8つの軸に、公式サイトで確認できる実データを当てて集計した結果です。式と重み、軸ごとの根拠はこのページの下と評価方法ページ、詳細ページで全公開しています。</p>
       <p className="mt-3"><strong>2つ目は、料金がすべて公式に公開され、入会前に試せること。</strong>入会金・年会費・紹介料（3クラス）が公式サイトに明示され、総額は月2回・1年で ¥957,000（スタンダード換算）と先に計算できます。さらに、お試しキャンペーンでは紹介料のみで利用を開始でき、2回目以降の利用で本入会を判断できます。</p>
       <p className="mt-3"><strong>3つ目は、運営の素性が確認できること。</strong>創業40年以上の老舗で、東京都の条例届出は受理済み、登録番号も公式サイトに明記されています。女性への対応は全て女性スタッフが行い、女性会員は全員が面談後に登録、写真は無加工で掲載されます。</p>
       <p className="mt-3"><strong>ただし！</strong></p>
-      <p className="mt-3">全員に東京Ritzが最適とは限りません。高級志向ならルミエール倶楽部、出張が多く全国で使いたいならエトワール倶楽部、とにかく総額を抑えたいなら凛サロン倶楽部（いずれもサンプル）。このページでは10社すべてを比較し、それぞれの特徴を解説しました。</p>
-      <p className="mt-3">10社の違いを、先に一覧にしておきます。総合スコアは、編集部が料金の総額・公開度・運営対応などで付けたものです。</p>
+      <p className="mt-3">全員に東京Ritzが最適とは限りません。高級志向ならルミエール倶楽部、出張が多く全国で使いたいならエトワール倶楽部、とにかく総額を抑えたいなら凛サロン倶楽部（いずれもサンプル）。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。</p>
+        </>
+      ) : top ? (
+        <>
+      <H2>結論：現在の掲載クラブで編集部が選ぶのは{top.name}</H2>
+      <p className="mt-4"><strong>迷ったら、まずは現在の総合1位の{top.name}から検討してください。</strong>総合 {top.score} / 100 で、掲載中の{total}社で最も高いスコアです。年間総額（月2回・1年）は {top.total}、対応エリアは{top.areas}です。式と重み、軸ごとの根拠は評価方法ページと詳細ページで全公開しています。</p>
+      <p className="mt-3">全員に{top.name}が最適とは限りません。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。</p>
+        </>
+      ) : null}
+      <p className="mt-3">{total}社の違いを、先に一覧にしておきます。総合スコアは、編集部が料金の総額・公開度・運営対応などで付けたものです。</p>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>
@@ -70,7 +97,7 @@ export default function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {clubs.map((c) => (
+            {shown.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2 font-bold">
                   <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
@@ -93,7 +120,7 @@ export default function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {clubs.map((c) => (
+            {shown.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2">{c.name}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.join}</td>
@@ -105,7 +132,7 @@ export default function HomePage() {
       </div>
       <p className="mt-2 text-sm text-gray-500">※金額はサンプルデータです。年会費を含む年間総額は次の比較表で並べています。</p>
 
-      <H2>交際クラブおすすめ10社の比較表</H2>
+      <H2>交際クラブおすすめ{total}社の比較表</H2>
       <div className="mt-4 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
@@ -121,7 +148,7 @@ export default function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {clubs.map((c) => (
+            {shown.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2 font-bold">
                   <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
@@ -139,7 +166,7 @@ export default function HomePage() {
         </table>
       </div>
       <div className="mt-4 space-y-3 md:hidden">
-        {clubs.map((c, i) => (
+        {shown.map((c, i) => (
           <article key={c.slug} className="rounded border border-[#D5DCE6] bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <h3 className="font-bold">
@@ -188,12 +215,14 @@ export default function HomePage() {
       <h3 className="mt-8 text-lg font-bold">②料金体系はトータルで比較する</h3>
       <p className="mt-2">入会金・年会費・セッティング料を合わせた年間トータルで比較しないと、本当の費用感は分かりません。入会金が安くてもセッティング料が高いクラブもあれば、その逆もあります。だからこのサイトの比較表は、月2回・1年での年間総額を主役にしています。お手当・食事代・ホテル代はクラブへ払う費用ではないので、総額には含めていません。</p>
       <h3 className="mt-8 text-lg font-bold">③対応エリア（全国展開しているか）</h3>
-      <p className="mt-2">東京在住なら選択肢は多いですが、地方在住の方は使えるクラブが限られます。出張で複数都市を行き来する方は、対応エリアの広いクラブの方が使い勝手がいい。実在クラブでは南青山Classyが4都市（東京・札幌・大阪・福岡）対応で、サンプル8社ではエトワール倶楽部が6都市対応で最も広く、逆にクラブ白亜は東京特化です。「広さ」か「地元での密度」か、自分の生活圏で選んでください。</p>
+      <p className="mt-2">東京在住なら選択肢は多いですが、地方在住の方は使えるクラブが限られます。出張で複数都市を行き来する方は、対応エリアの広いクラブの方が使い勝手がいい。{classyShown && "実在クラブでは南青山Classyが4都市（東京・札幌・大阪・福岡）対応で、"}サンプル8社ではエトワール倶楽部が6都市対応で最も広く、逆にクラブ白亜は東京特化です。「広さ」か「地元での密度」か、自分の生活圏で選んでください。</p>
       <h3 className="mt-8 text-lg font-bold">④動画プロフィールの有無</h3>
       <p className="mt-2"><strong>現時点では評価対象外。</strong>現在、比較に必要な動画プロフィールの情報を確認できていないため、本項目は評価対象外としています。確認できていない情報を根拠に順位を付けることはしません。</p>
       <h3 className="mt-8 text-lg font-bold">⑤運営のサポート体制</h3>
       <p className="mt-2">見落とされがちですが、重要です。面接から紹介までの速さ、キャンセル条件、スタッフ対応の評判。このサイトでは「セッティング速度」「キャンセル条件」を独立した評価軸にして、各社の根拠とあわせて開示しています。あわせて、いつの情報か分かるよう、全社に最終確認日を付けています。</p>
 
+      {top?.slug === "tokyo-ritz" ? (
+        <>
       <H2>東京Ritzの特徴と編集部の評価</H2>
       <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -210,7 +239,7 @@ export default function HomePage() {
         </p>
         <p className="mt-3">
           総合スコア <span className="text-xl font-bold text-[#E9CF8F]">93.2 / 100</span>
-          （10社中1位・8/8軸で採点）｜拠点：東京（新宿）｜最終確認日 2026-11-03
+          （{total}社中1位・8/8軸で採点）｜拠点：東京（新宿）｜最終確認日 2026-11-03
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded border border-white/25 bg-white/10 p-3">
@@ -241,20 +270,61 @@ export default function HomePage() {
           <span className="ml-3 text-sm text-gray-300">公式サイトへのリンクは詳細ページにあります</span>
         </p>
       </div>
+        </>
+      ) : top ? (
+        <>
+      <H2>{top.name}の特徴と編集部の評価</H2>
+      <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
+        <p>
+          <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第1位{top.slug.startsWith("sample-") ? "" : "・実在クラブ"}</span>
+        </p>
+        <p className="mt-3 text-2xl font-bold tracking-wide">{top.name}</p>
+        <p className="mt-3 leading-relaxed text-gray-100">{top.feature}</p>
+        <p className="mt-3">
+          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">{top.score} / 100</span>
+          （{total}社中1位）｜対応エリア：{top.areas}｜最終確認日 {top.checked}
+        </p>
+        <p className="mt-4 text-gray-100">
+          入会金 {top.join}／年会費 {top.annual}／セッティング料 {top.perUse}。年間総額（月2回）は {top.total} です。
+        </p>
+        <p className="mt-4">
+          <Link href={`/items/${top.slug}`} className="inline-block rounded bg-white px-5 py-2 font-bold text-brand">
+            {top.name}の詳細と根拠を見る
+          </Link>
+        </p>
+      </div>
+        </>
+      ) : null}
 
       <H2>タイプ別おすすめ｜あなたに合う交際クラブはどこ？</H2>
+      {ritzShown && (
+        <>
       <h3 className="mt-6 text-lg font-bold">初めて交際クラブを使う人 → 東京Ritz</h3>
-      <p className="mt-2">いきなり入会金を払わなくていいのが理由です。東京Ritzにはお試しキャンペーンがあり、紹介料のみで利用を始めて、2回目以降の利用で本入会を判断できます。総合スコアも1位で、届出と運営歴が確認できる実在クラブです。関西にお住まいなら、クラブ・アメジスト（サンプル・総合2位）も候補になります。</p>
+      <p className="mt-2">いきなり入会金を払わなくていいのが理由です。東京Ritzにはお試しキャンペーンがあり、紹介料のみで利用を始めて、2回目以降の利用で本入会を判断できます。総合スコアも1位で、届出と運営歴が確認できる実在クラブです。関西にお住まいなら、クラブ・アメジスト（サンプル・総合3位）も候補になります。</p>
+        </>
+      )}
+      {published.has("sample-lumiere") && (
+        <>
       <h3 className="mt-8 text-lg font-bold">ハイクラスな女性と出会いたい人 → ルミエール倶楽部</h3>
       <p className="mt-2">銀座に面接サロンを構える高級会員制。厳格な審査と丁寧なコンシェルジュ対応を掲げています。その分、入会金 ¥550,000・年会費 ¥550,000 と費用はサンプル8社で最も高く、年間総額は ¥2,420,000。質への投資として割り切れる方向けです。</p>
+        </>
+      )}
+      {published.has("sample-etoile") && (
+        <>
       <h3 className="mt-8 text-lg font-bold">地方在住・出張が多い人 → エトワール倶楽部</h3>
-      <p className="mt-2">実在クラブでは、南青山Classyが東京・札幌・大阪・福岡の4都市対応です。サンプルの中では、全国6都市（東京・大阪・名古屋・札幌・仙台・福岡）に面接拠点を持つ大手型で、会員数 約8,900名はサンプル8社で最大です。出張先でも利用しやすいエリア網が特徴で、「地元にクラブがない」が起きにくい設計です。</p>
+      <p className="mt-2">{classyShown && "実在クラブでは、南青山Classyが東京・札幌・大阪・福岡の4都市対応です。"}サンプルの中では、全国6都市（東京・大阪・名古屋・札幌・仙台・福岡）に面接拠点を持つ大手型で、会員数 約8,900名はサンプル8社で最大です。出張先でも利用しやすいエリア網が特徴で、「地元にクラブがない」が起きにくい設計です。</p>
+        </>
+      )}
+      {published.has("sample-rin") && (
+        <>
       <h3 className="mt-8 text-lg font-bold">コストを抑えたい人 → 凛サロン倶楽部</h3>
-      <p className="mt-2">年間総額 ¥484,000 は全10社で最安。入会金を抑えた始めやすい価格設定です。その分、キャンセル条件は厳しめとされています。首都圏（東京・神奈川・千葉・埼玉）が対象エリアです。</p>
+      <p className="mt-2">年間総額 ¥484,000 は全{total}社で最安。入会金を抑えた始めやすい価格設定です。その分、キャンセル条件は厳しめとされています。首都圏（東京・神奈川・千葉・埼玉）が対象エリアです。</p>
+        </>
+      )}
 
-      <H2>ほかの交際クラブ9社の特徴と編集部の評価</H2>
-      <p className="mt-4">ここからは1位以外の9社です。2位の南青山Classyは実在クラブで、その他8社はデモ用のサンプルクラブです。評価はサンプルデータと公開している採点式に基づきます。</p>
-      {others.map((o) => (
+      <H2>ほかの交際クラブ{othersShown.length}社の特徴と編集部の評価</H2>
+      <p className="mt-4">ここからは1位以外の{othersShown.length}社です。{ritzShown && realOthers.length === 1 ? "2位の南青山Classyは実在クラブで、その他8社はデモ用のサンプルクラブです。" : realOthers.length > 0 ? `${realOthers.map((o) => o.name).join("と")}は実在クラブで、その他${othersShown.length - realOthers.length}社はデモ用のサンプルクラブです。` : "以下はすべてデモ用のサンプルクラブです。"}評価はサンプルデータと公開している採点式に基づきます。</p>
+      {othersShown.map((o) => (
         <div key={o.slug}>
           <h3 className="mt-8 text-lg font-bold">{o.name}（総合 {o.score}）</h3>
           <div className="mt-2 rounded border border-[#D5DCE6] p-4">
@@ -286,13 +356,13 @@ export default function HomePage() {
       <H2>交際クラブのよくある質問</H2>
       <dl>
         <dt className="mt-6 font-bold">Q. 交際クラブの入会審査に落ちることはありますか？</dt>
-        <dd className="mt-1">あります。審査の有無と厳しさはクラブごとに違います。このサイトでは、各社の審査や運営体制を「運営体制の透明性」の軸で評価し、各社のページに根拠を書いています。なお、実際に掲載するクラブは、出会い系サイト規制法の届出が確認できたクラブのみに限定する方針です（東京Ritzは届出の受理を公式情報で確認済み。その他の掲載クラブはデモ用のサンプルです）。</dd>
+        <dd className="mt-1">あります。審査の有無と厳しさはクラブごとに違います。このサイトでは、各社の審査や運営体制を「運営体制の透明性」の軸で評価し、各社のページに根拠を書いています。なお、実際に掲載するクラブは、出会い系サイト規制法の届出が確認できたクラブのみに限定する方針です{realShown.length > 0 ? `（${realShown.map((c) => c.name).join("と")}は届出を公式情報で確認済み。その他の掲載クラブはデモ用のサンプルです）` : "（掲載クラブはデモ用のサンプルです）"}。</dd>
         <dt className="mt-6 font-bold">Q. お手当は総額に入っていますか？</dt>
         <dd className="mt-1">入っていません。このサイトの総額は、入会金・年会費・セッティング料という「クラブへ払う費用」だけです。女性へ直接渡すお手当は当事者間で決まるものなので、相場として数字は出しません。</dd>
         <dt className="mt-6 font-bold">Q. ハイクラスな女性と出会えますか？</dt>
         <dd className="mt-1">クラブ選びと会員ランクによります。このサイトでは、各社が開示している会員数と女性の年齢層を比較表と各社のページにそのまま表示しています。開示情報の範囲で判断してください。</dd>
         <dt className="mt-6 font-bold">Q. 地方でも交際クラブは使えますか？</dt>
-        <dd className="mt-1">使えますが、対応エリアはクラブで大きく違います。実在の東京Ritzは関東近辺が中心で地方在住でも利用可能と案内されており、サンプルでは全国6都市対応のエトワール倶楽部、関西特化のクラブ・アメジスト、東京特化のクラブ白亜など、形はさまざまです。比較表の「対応エリア」で、自分の生活圏に合うかを確認してください。</dd>
+        <dd className="mt-1">使えますが、対応エリアはクラブで大きく違います。{ritzShown && "実在の東京Ritzは関東近辺が中心で地方在住でも利用可能と案内されており、"}{classyShown && "南青山Classyは東京・札幌・大阪・福岡の4都市対応です。"}サンプルでは全国6都市対応のエトワール倶楽部、関西特化のクラブ・アメジスト、東京特化のクラブ白亜など、形はさまざまです。比較表の「対応エリア」で、自分の生活圏に合うかを確認してください。</dd>
       </dl>
 
       <H2>交際クラブの基礎知識</H2>
