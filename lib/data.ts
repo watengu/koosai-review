@@ -101,6 +101,7 @@ function mapLink(r: Row): OutLink {
     url: String(r.url),
     kind: r.kind as OutLink["kind"],
     is_active: Boolean(r.is_active),
+    direct: Boolean(r.direct),
   };
 }
 

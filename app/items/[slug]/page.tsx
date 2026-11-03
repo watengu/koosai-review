@@ -77,13 +77,15 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
           （{scoredAxes}/{axes.length}軸で採点） ・ 最終確認日: {formatDate(item.last_checked_at)}
         </p>
 
-        {/* 公式CTA: クリック計測つきリダイレクト /go/[id] を経由する。
+        {/* 公式CTA: 通常はクリック計測つきリダイレクト /go/[id] を経由するが、
+            links.direct が立っているリンク（東京Ritzの公式リンク等）は遷移先へ直接つなぐ。
             affiliate の場合は PR である旨をボタンの近くに明記する。 */}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {officialLinks.map((l) => (
             <a
               key={l.id}
-              href={`/go/${l.id}`}
+              href={l.direct ? l.url : `/go/${l.id}`}
+              {...(l.direct ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="rounded bg-brand px-5 py-2 font-bold text-white"
             >
               {l.label}

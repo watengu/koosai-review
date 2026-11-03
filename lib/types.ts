@@ -76,6 +76,8 @@ export interface OutLink {
   url: string;
   kind: "official" | "affiliate";
   is_active: boolean;
+  /** true のとき /go の計測リダイレクトを経由せず遷移先へ直接リンクする */
+  direct: boolean;
 }
 
 /** ランキング表示用に集計した対象 */
