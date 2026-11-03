@@ -170,7 +170,9 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
             )}
             {vertical.specFields.map((f) => (
               <tr key={f.key} className="border-b border-gray-200">
-                <th className="bg-gray-50 p-2 text-left">{f.label}</th>
+                <th className="bg-gray-50 p-2 text-left">
+                  {typeof item.specs?.[`${f.key}_label`] === "string" ? (item.specs[`${f.key}_label`] as string) : f.label}
+                </th>
                 <td className="p-2">{formatSpecValue(item.specs?.[f.key], f.format)}</td>
               </tr>
             ))}
