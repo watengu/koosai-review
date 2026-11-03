@@ -6,7 +6,7 @@ import Link from "next/link";
  * 数字はサンプルデータの実測値（2026-11-02 時点で本番データと照合済み）。
  */
 const clubs = [
-  { slug: "tokyo-ritz", name: "東京Ritz", feature: "創業40年以上の老舗・女性スタッフ対応・お試しあり", score: "92.2", join: "¥110,000", annual: "¥55,000", perUse: "¥33,000", total: "¥957,000", areas: "東京（関東近辺が中心）", checked: "2026-11-03" },
+  { slug: "tokyo-ritz", name: "東京Ritz", feature: "創業40年以上の老舗・女性スタッフ対応・お試しあり", score: "93.2", join: "¥110,000", annual: "¥55,000", perUse: "¥33,000", total: "¥957,000", areas: "東京（関東近辺が中心）", checked: "2026-11-03" },
   { slug: "sample-amethyst", name: "クラブ・アメジスト", feature: "関西特化・総額を抑えたコース", score: "83.3", join: "¥88,000", annual: "¥55,000", perUse: "¥19,800", total: "¥618,200", areas: "大阪・京都・神戸", checked: "2026-11-01" },
   { slug: "sample-etoile", name: "エトワール倶楽部", feature: "全国6都市に面接拠点", score: "82.2", join: "¥110,000", annual: "¥110,000", perUse: "¥22,000", total: "¥748,000", areas: "東京・大阪・名古屋・札幌・仙台・福岡", checked: "2026-11-01" },
   { slug: "sample-rin", name: "凛サロン倶楽部", feature: "入会金を抑えた始めやすい価格", score: "80.0", join: "¥55,000", annual: "¥33,000", perUse: "¥16,500", total: "¥484,000", areas: "東京・神奈川・千葉・埼玉", checked: "2026-11-01" },
@@ -52,7 +52,7 @@ export default function HomePage() {
 
       <H2>結論：編集部が全項目を確認して選んだ交際クラブは東京Ritz</H2>
       <p className="mt-4"><strong>迷ったら、まずは総合1位の東京Ritzから検討してください。</strong>9社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのが、この実在クラブです。理由は大きく3つあります。</p>
-      <p className="mt-3"><strong>1つ目は、総合スコアが9社で最も高いこと。</strong>総合 92.2 / 100。料金の総額、料金の公開度、スタッフ対応、会員層などの7つの軸に、公式サイトで確認できる実データを当てて集計した結果です。式と重み、軸ごとの根拠はこのページの下と評価方法ページ、詳細ページで全公開しています。</p>
+      <p className="mt-3"><strong>1つ目は、総合スコアが9社で最も高いこと。</strong>総合 93.2 / 100。料金の総額、料金の公開度、スタッフ対応、会員層などの8つの軸に、公式サイトで確認できる実データを当てて集計した結果です。式と重み、軸ごとの根拠はこのページの下と評価方法ページ、詳細ページで全公開しています。</p>
       <p className="mt-3"><strong>2つ目は、料金がすべて公式に公開され、入会前に試せること。</strong>入会金・年会費・紹介料（3クラス）が公式サイトに明示され、総額は月2回・1年で ¥957,000（スタンダード換算）と先に計算できます。さらに、お試しキャンペーンでは紹介料のみで利用を開始でき、2回目以降の利用で本入会を判断できます。</p>
       <p className="mt-3"><strong>3つ目は、運営の素性が確認できること。</strong>創業40年以上の老舗で、東京都の条例届出は受理済み、登録番号も公式サイトに明記されています。女性への対応は全て女性スタッフが行い、女性会員は全員が面談後に登録、写真は無加工で掲載されます。</p>
       <p className="mt-3"><strong>ただし！</strong></p>
@@ -207,8 +207,8 @@ export default function HomePage() {
           入会した男性は全てのランクの女性を紹介可能です。
         </p>
         <p className="mt-3">
-          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">92.2 / 100</span>
-          （9社中1位・7/8軸で採点）｜拠点：東京（新宿）｜最終確認日 2026-11-03
+          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">93.2 / 100</span>
+          （9社中1位・8/8軸で採点）｜拠点：東京（新宿）｜最終確認日 2026-11-03
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded border border-white/25 bg-white/10 p-3">
