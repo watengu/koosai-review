@@ -1,315 +1,240 @@
 import Link from "next/link";
-import { getAxes, getRanking, getApprovedReviews } from "@/lib/data";
-import { vertical } from "@/config/vertical";
-import { formatDate, formatYen } from "@/lib/format";
-import ReviewCard from "@/components/ReviewCard";
 
-export const revalidate = 300;
+/**
+ * ゴール再現版ホーム（ゴール: aijin-billionaire.com の区間構成を再現し、
+ * テキストのみ当方のサンプルデータ・文面に差し替えた確定版）。
+ * 数字はサンプルデータの実測値（2026-11-02 時点で本番データと照合済み）。
+ */
+const clubs = [
+  { slug: "sample-amethyst", name: "クラブ・アメジスト", feature: "関西特化・総額を抑えたコース", score: "83.3", join: "¥88,000", annual: "¥55,000", perUse: "¥19,800", total: "¥618,200", areas: "大阪・京都・神戸" },
+  { slug: "sample-etoile", name: "エトワール倶楽部", feature: "全国6都市に面接拠点", score: "82.2", join: "¥110,000", annual: "¥110,000", perUse: "¥22,000", total: "¥748,000", areas: "東京・大阪・名古屋・札幌・仙台・福岡" },
+  { slug: "sample-rin", name: "凛サロン倶楽部", feature: "入会金を抑えた始めやすい価格", score: "80.0", join: "¥55,000", annual: "¥33,000", perUse: "¥16,500", total: "¥484,000", areas: "東京・神奈川・千葉・埼玉" },
+  { slug: "sample-lumiere", name: "ルミエール倶楽部", feature: "銀座の高級会員制", score: "76.7", join: "¥550,000", annual: "¥550,000", perUse: "¥55,000", total: "¥2,420,000", areas: "東京・大阪・名古屋・福岡" },
+  { slug: "sample-vert", name: "サロン・ド・ヴェール", feature: "料金表が分かりやすい中核価格帯", score: "75.6", join: "¥220,000", annual: "¥220,000", perUse: "¥33,000", total: "¥1,232,000", areas: "東京・大阪・京都" },
+  { slug: "sample-hakua", name: "クラブ白亜", feature: "新宿特化・紹介までの速さ", score: "72.2", join: "¥165,000", annual: "¥110,000", perUse: "¥27,500", total: "¥935,000", areas: "東京" },
+  { slug: "sample-sogetsu", name: "倶楽部蒼月", feature: "青山・少人数で質を重視", score: "71.1", join: "¥330,000", annual: "¥330,000", perUse: "¥38,500", total: "¥1,584,000", areas: "東京・横浜" },
+  { slug: "sample-tsukikage", name: "クラブ月影", feature: "麻布の会員制・料金は面接時案内", score: "51.1", join: "¥440,000", annual: "¥440,000", perUse: "非公開", total: "試算不可", areas: "東京" },
+];
 
-/** B3「表がFV」: FVで結論と総額を出し、比較表＋採点式を入口に内蔵するロングLP。 */
-export default async function HomePage() {
-  const [ranking, latestReviews, axes] = await Promise.all([
-    getRanking(),
-    getApprovedReviews({ limit: 5 }),
-    getAxes(),
-  ]);
-  const itemNameById = new Map(ranking.map((r) => [r.item.id, r.item.name]));
-  const axisLabels = Object.fromEntries(axes.map((a) => [a.key, a.label]));
-  const weightSummary = axes.map((a) => `${a.label}${a.weight}`).join("／");
-  const fullPublic = ranking.filter(
-    (r) => r.item.price_join !== null && r.item.price_annual !== null && r.item.price_per_use !== null,
-  ).length;
-  const lastChecked = ranking
-    .map((r) => r.item.last_checked_at)
-    .filter((d): d is string => Boolean(d))
-    .sort()
-    .at(-1);
-  const annualTotal = (join: number | null, annual: number | null, perUse: number | null) =>
-    join === null || annual === null || perUse === null ? null : join + annual + perUse * 24;
-  const evidence = ["sample-lumiere", "sample-rin"]
-    .map((slug) => ranking.find((r) => r.item.slug === slug))
-    .filter((r) => r !== undefined);
+const others = [
+  { slug: "sample-etoile", name: "エトワール倶楽部", score: "82.2", body: "全国6都市に面接拠点を持つ大手型の交際クラブ。出張先でも利用しやすいエリア網が特徴です。会員数 約8,900名（8社最大）、女性20代〜40代。入会金 ¥110,000／年会費 ¥110,000／セッティング料 ¥22,000、年間総額 ¥748,000。最終確認日 2026-11-01。" },
+  { slug: "sample-rin", name: "凛サロン倶楽部", score: "80.0", body: "首都圏をカバーし、入会金を抑えた始めやすい価格設定の交際クラブ。その分、キャンセル条件は厳しめです。会員数 約5,400名、女性20代〜30代。入会金 ¥55,000／年会費 ¥33,000／セッティング料 ¥16,500、年間総額 ¥484,000。最終確認日 2026-11-01。" },
+  { slug: "sample-lumiere", name: "ルミエール倶楽部", score: "76.7", body: "銀座に面接サロンを構える、落ち着いた大人のための会員制交際クラブ。厳格な審査と丁寧なコンシェルジュ対応を掲げています。会員数 約6,500名、女性20代〜30代中心。入会金 ¥550,000／年会費 ¥550,000／セッティング料 ¥55,000、年間総額 ¥2,420,000。最終確認日 2026-11-01。" },
+  { slug: "sample-vert", name: "サロン・ド・ヴェール", score: "75.6", body: "六本木拠点の中核価格帯クラブ。料金表が分かりやすく、初めての方でも総額を把握しやすい構成です。会員数 約3,800名、女性20代〜40代。入会金 ¥220,000／年会費 ¥220,000／セッティング料 ¥33,000、年間総額 ¥1,232,000。最終確認日 2026-11-01。" },
+  { slug: "sample-hakua", name: "クラブ白亜", score: "72.2", body: "新宿のみに拠点を置く、東京特化の交際クラブ。エリアを絞る代わりに、面接から紹介までの速さを掲げています。会員数 約2,600名、女性20代〜30代。入会金 ¥165,000／年会費 ¥110,000／セッティング料 ¥27,500、年間総額 ¥935,000。最終確認日 2026-11-01。" },
+  { slug: "sample-sogetsu", name: "倶楽部蒼月", score: "71.1", body: "青山を拠点に、少人数・高品質を掲げる交際クラブ。登録人数を絞り、セッティングの質を重視する運営です。会員数 約4,200名、女性20代中心。入会金 ¥330,000／年会費 ¥330,000／セッティング料 ¥38,500、年間総額 ¥1,584,000。最終確認日 2026-11-01。" },
+  { slug: "sample-tsukikage", name: "クラブ月影", score: "51.1", body: "麻布の会員制クラブ。セッティング料は非公開で、面接時に案内される形式です。審査は厳格とされています。入会金 ¥440,000／年会費 ¥440,000／セッティング料 非公開のため、年間総額は試算不可。この「総額が先に分からない」こと自体が、このサイトでの評価が下がる理由です。最終確認日 2026-11-01。" },
+];
 
+function H2({ children }: { children: React.ReactNode }) {
   return (
-    <div className="space-y-14">
-      {/* FV: 結論＋強い写真1枚＋実測カウント */}
-      <section className="flex flex-col gap-6 md:flex-row">
-        <div className="md:w-[57%]">
-          <h1 className="text-3xl font-bold leading-snug">
-            面談に行く前に、<span className="text-[#C73E2C]">総額は分かります。</span>
-            <br />
-            {vertical.itemNoun}
-            {ranking.length}社を、料金で比べました。
-          </h1>
-          <p className="mt-4 leading-relaxed text-gray-700">
-            入会金だけを見て決めると、総額で負けます。このページは全社の料金を確認し、
-            あなたの回数で年間総額まで計算して並べたものです。採点式は全文公開。
-            順位は契約では動きません。
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2 text-sm">
-            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
-              <b className="text-lg text-brand">{ranking.length}</b> 社を公式確認（サンプル）
-            </span>
-            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
-              <b className="text-lg text-brand">{fullPublic}</b> 社が3項目すべて公開
-            </span>
-            <span className="rounded border border-gray-300 bg-gray-50 px-3 py-2">
-              <b className="text-lg text-brand">{lastChecked ? formatDate(lastChecked) : "—"}</b>{" "}
-              最終確認日を全社表示
-            </span>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="#conclusion" className="rounded bg-brand px-5 py-2 font-bold text-white">
-              結論の表を見る
-            </Link>
-            <Link
-              href="/simulator"
-              className="rounded border border-brand px-5 py-2 font-bold text-brand"
-            >
-              自分の回数で試算する
-            </Link>
-          </div>
-        </div>
-        <figure className="md:w-[43%]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/hero.jpg"
-            alt="銀座の夜のイメージ（サンプル）"
-            className="h-64 w-full rounded object-cover object-top md:h-[330px]"
-          />
-          <figcaption className="mt-1 text-right text-xs text-gray-400">
-            イメージ写真（サンプル）
-          </figcaption>
-        </figure>
-      </section>
+    <h2 className="mt-12 border-l-[6px] border-brand bg-[#F2F5F9] px-4 py-2.5 text-xl font-bold leading-relaxed first:mt-0">
+      {children}
+    </h2>
+  );
+}
 
-      {/* 結論の表＋採点式 */}
-      <section id="conclusion">
-        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">結論の表</p>
-        <h2 className="mt-2 text-xl font-bold">比べるのは入会金ではなく、総額です。</h2>
-        <div className="mt-4 hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[720px] border-collapse text-sm">
-            <thead>
-              <tr className="bg-brand text-left text-white">
-                <th className="p-2">{vertical.itemNoun}</th>
-                <th className="p-2">総合スコア</th>
-                <th className="p-2">{vertical.priceModel.joinLabel}</th>
-                <th className="p-2">{vertical.priceModel.annualLabel}</th>
-                <th className="p-2">{vertical.priceModel.perUseLabel}</th>
-                <th className="p-2">年間総額（月2回）</th>
-                <th className="p-2">最終確認日</th>
+export default function HomePage() {
+  return (
+    <div className="leading-loose">
+      <h1 className="text-2xl font-bold leading-relaxed">
+        交際クラブおすすめ8社比較｜根拠を全部開示して選ぶ
+      </h1>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/images/hero.jpg" alt="銀座の夜のイメージ（サンプル）" className="mt-4 w-full rounded" />
+      <p className="mt-1 text-right text-xs text-gray-400">イメージ写真（サンプル）</p>
+
+      <p className="mt-4">交際クラブって、実際どこがいいのか分かりにくいですよね。料金はクラブごとに公開の仕方が違い、入会金だけ見ても総額は分かりません。</p>
+      <p className="mt-3">このページでは、編集部が8社（サンプル）の料金・スペックを同じ条件でそろえて確認し、「結局どこがどう違うのか」の結論を出します。採点式は全文公開し、順位は契約の有無で操作しません。確認できなかった項目は、推測で埋めず「非公開」と書きます。</p>
+      <p className="mt-3 text-sm text-gray-500">※当ページはデモ用のサンプルデータを表示しています。掲載順位は公開した採点式のみで決定します。</p>
+
+      <H2>結論：編集部が全項目を確認して選んだ交際クラブはクラブ・アメジスト</H2>
+      <p className="mt-4"><strong>迷ったら、まずは総合1位のクラブ・アメジストから検討してください。</strong>8社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのがこのクラブです。理由は大きく3つあります。</p>
+      <p className="mt-3"><strong>1つ目は、総合スコアが8社で最も高いこと。</strong>総合 83.3 / 100。料金の総額、料金の公開度、スタッフ対応、セッティング速度、会員層などの軸を重み付きで集計した結果です。式と重みはこのページの下と評価方法ページで全公開しています。</p>
+      <p className="mt-3"><strong>2つ目は、料金の3項目（入会金・年会費・セッティング料）がすべて公開され、総額を先に計算できること。</strong>月2回・1年で試算すると年間総額は ¥618,200。「面談まで総額が分からない」が起きません。</p>
+      <p className="mt-3"><strong>3つ目は、対象エリアと会員層がはっきりしていること。</strong>関西（大阪・京都・神戸）特化、女性20代中心、会員数 約3,100名。関西在住の方向けに料金を抑えたコースを用意している、とサンプルデータ上も一貫しています。</p>
+      <p className="mt-3"><strong>ただし！</strong></p>
+      <p className="mt-3">全員にアメジストが最適とは限りません。高級志向ならルミエール倶楽部、出張が多く全国で使いたいならエトワール倶楽部、とにかく総額を抑えたいなら凛サロン倶楽部。このページでは8社すべてを比較し、それぞれの特徴を解説しました。</p>
+      <p className="mt-3">大手8社の違いを、先に一覧にしておきます。総合スコアは、編集部が料金の総額・公開度・運営対応などで付けたものです。</p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-brand text-left text-white">
+              <th className="border border-[#D5DCE6] p-2">クラブ</th>
+              <th className="border border-[#D5DCE6] p-2">特徴</th>
+              <th className="border border-[#D5DCE6] p-2">総合スコア</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clubs.map((c) => (
+              <tr key={c.slug}>
+                <td className="border border-[#D5DCE6] p-2 font-bold">
+                  <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
+                </td>
+                <td className="border border-[#D5DCE6] p-2">{c.feature}</td>
+                <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{c.score}</td>
               </tr>
-            </thead>
-            <tbody>
-              {ranking.map(({ item, totalScore }) => {
-                const total = annualTotal(item.price_join, item.price_annual, item.price_per_use);
-                return (
-                  <tr key={item.id} className="border-b border-gray-200 align-top">
-                    <td className="p-2 font-bold">
-                      <Link href={`/items/${item.slug}`} className="text-brand hover:underline">
-                        {item.name}
-                      </Link>
-                    </td>
-                    <td className="p-2 font-bold text-[#C73E2C]">
-                      {totalScore !== null ? totalScore.toFixed(1) : "—"}
-                    </td>
-                    <td className="p-2">{formatYen(item.price_join)}</td>
-                    <td className="p-2">{formatYen(item.price_annual)}</td>
-                    <td className="p-2">{formatYen(item.price_per_use)}</td>
-                    <td className="p-2 font-bold">{total !== null ? formatYen(total) : "試算不可"}</td>
-                    <td className="p-2">{formatDate(item.last_checked_at)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-3 text-sm text-gray-500 md:hidden">
-          スマートフォンでは
-          <Link href="/compare" className="text-brand underline">比較表ページ</Link>
-          で全項目を比べられます。
-        </p>
-        <div className="mt-4 rounded border-l-4 border-[#C73E2C] bg-gray-50 p-4 text-sm leading-relaxed">
-          <b>この表の採点式</b>：総合スコア＝評価軸（{weightSummary}）の重み付き集計（100点満点）。
-          料金が非公開の社は「試算不可」とし、順位の根拠は
-          <Link href="/method" className="text-brand underline">評価方法ページ</Link>
-          で全公開します。契約で順位は動きません。
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <div className="rounded border border-gray-200 p-4">
-            <p className="font-bold">総額を決めるのは、会うたびの料金</p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              入会金と年会費は一度きり。セッティング料は会う回数だけ積み上がります。
-              だから比較は「自分の回数での総額」でしか意味を持ちません。
-            </p>
-          </div>
-          <div className="rounded border border-gray-200 p-4">
-            <p className="font-bold">非公開は、非公開と書く</p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              公式で金額を確認できない社は推測で埋めません。
-              「面談まで総額が分からない」こと自体を、判断材料として表示します。
-            </p>
-          </div>
-          <div className="rounded border border-gray-200 p-4">
-            <p className="font-bold">確認日を、全社に出す</p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              料金は変わります。いつの情報か分からない比較表は信用できません。
-              全社に最終確認日を付けています。
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 中身の証拠 */}
-      <section>
-        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">中身の証拠</p>
-        <h2 className="mt-2 text-xl font-bold">各社のページには、根拠まで載っています。</h2>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {evidence.map(({ item, totalScore }) => (
-            <article
-              key={item.id}
-              className="flex overflow-hidden rounded border border-gray-200"
-            >
-              {item.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.image_url}
-                  alt={`${item.name}のイメージ（サンプル）`}
-                  className="w-40 shrink-0 object-cover"
-                />
-              )}
-              <div className="p-4">
-                <h3 className="text-lg font-bold">
-                  <Link href={`/items/${item.slug}`} className="hover:underline">
-                    {item.name}
-                  </Link>
-                </h3>
-                <p className="mt-1 font-bold text-[#C73E2C]">
-                  総合 {totalScore !== null ? totalScore.toFixed(1) : "—"} / 100
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.summary}</p>
-                <p className="mt-2 text-xs text-gray-400">
-                  根拠は詳細ページで軸ごとに開示｜最終確認日 {formatDate(item.last_checked_at)}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-        <p className="mt-4">
-          <Link href="/ranking" className="text-brand underline">
-            ランキング全文を見る
-          </Link>
-        </p>
-      </section>
-
-      {/* 流れ（シミュレーター） */}
-      <section className="rounded bg-brand p-6 text-white md:p-8">
-        <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">流れ</p>
-        <h2 className="mt-2 text-xl font-bold">あなたの回数で、総額を出してから決める。</h2>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <div className="rounded border border-white/25 bg-white/10 p-4">
-            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 1</p>
-            <p className="mt-2 font-bold">回数を決める</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-200">
-              月1回か、月2回か。会うペースで総額は大きく変わります。
-            </p>
-          </div>
-          <div className="rounded border border-white/25 bg-white/10 p-4">
-            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 2</p>
-            <p className="mt-2 font-bold">総額を試算する</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-200">
-              シミュレーターが全社の年間総額を並べ替えます。非公開の社は試算不可と出ます。
-            </p>
-          </div>
-          <div className="rounded border border-white/25 bg-white/10 p-4">
-            <p className="text-xs font-bold tracking-widest text-[#E8B4AC]">STEP 3</p>
-            <p className="mt-2 font-bold">公式で確認する</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-200">
-              候補を絞ったら、各クラブ公式で最新情報を確かめて申し込みます。
-            </p>
-          </div>
-        </div>
-        <p className="mt-5">
-          <Link
-            href="/simulator"
-            className="inline-block rounded bg-white px-5 py-2 font-bold text-brand"
-          >
-            料金シミュレーターで試算する
-          </Link>
-        </p>
-      </section>
-
-      {/* 口コミ（実投稿のみ・枠組み維持） */}
-      <section>
-        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">口コミ</p>
-        <h2 className="mt-2 text-xl font-bold">口コミは、実投稿だけを数えます。</h2>
-        <div className="mt-4 space-y-4">
-          {latestReviews.map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              itemName={itemNameById.get(review.item_id)}
-              axisLabels={axisLabels}
-            />
-          ))}
-          {latestReviews.length === 0 &&
-            (vertical.sampleMode ? (
-              <p className="text-sm text-gray-500">
-                現在、実投稿の受付準備中です。口コミは実在の利用者からの投稿のみを掲載するため、
-                架空の口コミは掲載しません。投稿から掲載までの流れは
-                <Link href="/method" className="text-brand underline">評価方法ページ</Link>
-                に公開しています。
-              </p>
-            ) : (
-              <p className="text-sm text-gray-500">
-                まだ承認済みの口コミがありません。
-                <Link href="/reviews/post" className="text-brand underline">口コミを投稿する</Link>
-              </p>
             ))}
-        </div>
-      </section>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4">交際クラブの相場感をつかむために、入会金とセッティング料の早見も置いておきます。</p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full min-w-[480px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-brand text-left text-white">
+              <th className="border border-[#D5DCE6] p-2">クラブ</th>
+              <th className="border border-[#D5DCE6] p-2">入会金</th>
+              <th className="border border-[#D5DCE6] p-2">セッティング料</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clubs.map((c) => (
+              <tr key={c.slug}>
+                <td className="border border-[#D5DCE6] p-2">{c.name}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{c.join}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{c.perUse}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-sm text-gray-500">※金額はサンプルデータです。年会費を含む年間総額は次の比較表で並べています。</p>
 
-      {/* FAQ */}
-      <section>
-        <p className="text-xs font-bold tracking-widest text-[#C73E2C]">よくある質問</p>
-        <h2 className="mt-2 text-xl font-bold">申し込む前の、当然の疑問に答えます。</h2>
-        <div className="mt-5 space-y-6">
-          <div className="border-t border-gray-200 pt-4">
-            <p className="font-bold">Q. なぜ順位を信用できるのですか？</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-600">
-              採点式と重みを全文公開しているからです。同じ計算は誰でもやり直せます。
-              契約で順位が動くなら、その時点でこのサイトの存在理由が消えます。
-            </p>
-          </div>
-          <div className="border-t border-gray-200 pt-4">
-            <p className="font-bold">Q. お手当は総額に入っていますか？</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-600">
-              入っていません。総額はクラブへ払う費用のみです。女性へ直接渡すお手当は
-              当事者間で決まるものなので、相場として数字は出しません。
-            </p>
-          </div>
-          <div className="border-t border-gray-200 pt-4">
-            <p className="font-bold">Q. 口コミはありますか？</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-600">
-              承認制の実投稿のみを載せる設計です。運営が書いた口コミは載せません。
-              投稿が無い社は「データ不足」と表示します。
-            </p>
+      <H2>交際クラブおすすめ8社の比較表</H2>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[860px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-brand text-left text-white">
+              <th className="border border-[#D5DCE6] p-2">クラブ</th>
+              <th className="border border-[#D5DCE6] p-2">総合</th>
+              <th className="border border-[#D5DCE6] p-2">入会金</th>
+              <th className="border border-[#D5DCE6] p-2">年会費</th>
+              <th className="border border-[#D5DCE6] p-2">セッティング料</th>
+              <th className="border border-[#D5DCE6] p-2">年間総額（月2回）</th>
+              <th className="border border-[#D5DCE6] p-2">対応エリア</th>
+              <th className="border border-[#D5DCE6] p-2">最終確認日</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clubs.map((c) => (
+              <tr key={c.slug}>
+                <td className="border border-[#D5DCE6] p-2 font-bold">
+                  <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
+                </td>
+                <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{c.score}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{c.join}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{c.annual}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{c.perUse}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right font-bold">{c.total}</td>
+                <td className="border border-[#D5DCE6] p-2">{c.areas}</td>
+                <td className="border border-[#D5DCE6] p-2">2026-11-01</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 rounded border-2 border-brand bg-[#FBFCFE] p-4">
+        <p><strong>この表の採点式</strong>：総合スコア＝評価軸（料金の総額3／料金の公開度2／スタッフ対応2／セッティング速度2／会員層2／キャンセル条件1／対応エリア1／運営体制の透明性2）の重み付き集計（100点満点）。口コミの平均は実投稿が集まるまで採点に入れず「データ不足」と表示します。</p>
+      </div>
+
+      <H2>交際クラブの選び方｜見るべき5つの基準</H2>
+      <p className="mt-4">では何を基準に交際クラブを選ぶべきか。編集部が比較のときに必ず確認する5つの判断軸がこちら。</p>
+      <h3 className="mt-8 text-lg font-bold">①女性の数と質</h3>
+      <p className="mt-2">選択肢が多いほど、理想の相手に出会える確率は上がります。ただし数字は「延べ登録数」なのか「現在の会員数」なのかで意味が変わります。このサイトでは、各社が開示している会員数と女性の年齢層をそのまま並べています（例：エトワール倶楽部 約8,900名／女性20代〜40代、ルミエール倶楽部 約6,500名／女性20代〜30代中心）。公表していない社は、無いものとして扱います。</p>
+      <h3 className="mt-8 text-lg font-bold">②料金体系はトータルで比較する</h3>
+      <p className="mt-2">入会金・年会費・セッティング料を合わせた年間トータルで比較しないと、本当の費用感は分かりません。入会金が安くてもセッティング料が高いクラブもあれば、その逆もあります。だからこのサイトの比較表は、月2回・1年での年間総額を主役にしています。お手当・食事代・ホテル代はクラブへ払う費用ではないので、総額には含めていません。</p>
+      <h3 className="mt-8 text-lg font-bold">③対応エリア（全国展開しているか）</h3>
+      <p className="mt-2">東京在住なら選択肢は多いですが、地方在住の方は使えるクラブが限られます。出張で複数都市を行き来する方は、対応エリアの広いクラブの方が使い勝手がいい。サンプル8社では、エトワール倶楽部が6都市対応で最も広く、逆にクラブ白亜は東京特化です。「広さ」か「地元での密度」か、自分の生活圏で選んでください。</p>
+      <h3 className="mt-8 text-lg font-bold">④動画プロフィールの有無</h3>
+      <p className="mt-2"><strong>現時点では評価対象外。</strong>現在、比較に必要な動画プロフィールの情報を確認できていないため、本項目は評価対象外としています。確認できていない情報を根拠に順位を付けることはしません。</p>
+      <h3 className="mt-8 text-lg font-bold">⑤運営のサポート体制</h3>
+      <p className="mt-2">見落とされがちですが、重要です。面接から紹介までの速さ、キャンセル条件、スタッフ対応の評判。このサイトでは「セッティング速度」「キャンセル条件」を独立した評価軸にして、各社の根拠とあわせて開示しています。あわせて、いつの情報か分かるよう、全社に最終確認日を付けています。</p>
+
+      <H2>クラブ・アメジストの特徴と編集部の評価</H2>
+      <div className="mt-4 rounded border border-[#D5DCE6] p-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/clubs/sample-amethyst.jpg" alt="クラブ・アメジストのイメージ（サンプル）" className="mb-3 w-full rounded" />
+        <p>関西（大阪・京都・神戸）に特化した交際クラブ。関西在住の方向けに、料金を抑えたコースを用意しています。</p>
+        <p className="mt-2">総合スコア <span className="font-bold text-[#C73E2C]">83.3 / 100</span>（8社中1位）｜拠点：大阪（梅田）｜会員数 約3,100名｜女性20代中心｜最終確認日 2026-11-01</p>
+        <p className="mt-2">入会金 ¥88,000／年会費 ¥55,000／セッティング料 ¥19,800。年間総額（月2回）は ¥618,200 で、総額を計算できる7社の中では2番目に安い水準です。それでいて会員層とエリアが明確で、料金の公開度も満点に近い。1位の理由は「安さ」ではなく「総額・公開度・対象の明確さがそろっている」ことです。</p>
+        <p className="mt-2"><strong>向いている人</strong>：関西在住で、総額を先に把握してから決めたい人。逆に、東京中心に活動したい方には向きません（対応エリアが関西のみ）。</p>
+        <p className="mt-2"><Link href="/items/sample-amethyst" className="text-brand underline">クラブ・アメジストの詳細ページ</Link></p>
+      </div>
+
+      <H2>タイプ別おすすめ｜あなたに合う交際クラブはどこ？</H2>
+      <h3 className="mt-6 text-lg font-bold">初めて交際クラブを使う人 → クラブ・アメジスト</h3>
+      <p className="mt-2">迷う余地は少なくていいです。総合スコア1位、総額が先に分かり、対象が明確。初心者が安心して検討を始められる条件がそろっているのはアメジストです。関西以外にお住まいなら、次点はエトワール倶楽部（全国6都市）になります。</p>
+      <h3 className="mt-8 text-lg font-bold">ハイクラスな女性と出会いたい人 → ルミエール倶楽部</h3>
+      <p className="mt-2">銀座に面接サロンを構える高級会員制。厳格な審査と丁寧なコンシェルジュ対応を掲げています。その分、入会金 ¥550,000・年会費 ¥550,000 と費用は8社で最も高く、年間総額は ¥2,420,000。質への投資として割り切れる方向けです。</p>
+      <h3 className="mt-8 text-lg font-bold">地方在住・出張が多い人 → エトワール倶楽部</h3>
+      <p className="mt-2">全国6都市（東京・大阪・名古屋・札幌・仙台・福岡）に面接拠点を持つ大手型。会員数 約8,900名は8社で最大です。出張先でも利用しやすいエリア網が特徴で、「地元にクラブがない」が起きにくい設計です。</p>
+      <h3 className="mt-8 text-lg font-bold">コストを抑えたい人 → 凛サロン倶楽部</h3>
+      <p className="mt-2">年間総額 ¥484,000 は計算できる7社で最安。入会金を抑えた始めやすい価格設定です。その分、キャンセル条件は厳しめとされています。首都圏（東京・神奈川・千葉・埼玉）が対象エリアです。</p>
+
+      <H2>ほかの交際クラブ7社の特徴と編集部の評価</H2>
+      <p className="mt-4">ここからは1位以外の7社です。評価は公式情報の確認（サンプルデータ）と、公開している採点式に基づきます。</p>
+      {others.map((o) => (
+        <div key={o.slug}>
+          <h3 className="mt-8 text-lg font-bold">{o.name}（総合 {o.score}）</h3>
+          <div className="mt-2 rounded border border-[#D5DCE6] p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/images/clubs/${o.slug}.jpg`} alt={`${o.name}のイメージ（サンプル）`} className="mb-3 w-full rounded" />
+            <p>{o.body}</p>
+            <p className="mt-2"><Link href={`/items/${o.slug}`} className="text-brand underline">{o.name}の詳細ページ</Link></p>
           </div>
         </div>
-      </section>
+      ))}
 
-      {/* 着地CTA */}
-      <section className="rounded bg-gray-50 px-6 py-12 text-center">
-        <p className="text-2xl font-bold leading-relaxed">入会金の安さで、選ばないでください。</p>
-        <p className="mt-6">
-          <Link
-            href="#conclusion"
-            className="inline-block rounded bg-[#C73E2C] px-8 py-3 font-bold text-white"
-          >
-            総額で比べる（結論の表へ）
-          </Link>
-        </p>
-      </section>
+      <H2>費用の目安｜8社の年間総額を試算すると</H2>
+      <p className="mt-4">この節は個人の利用実績ではなく、サンプルデータからの試算です。月2回・1年続けた場合の年間総額（クラブへ払う費用のみ）は、最安 ¥484,000（凛サロン倶楽部）から最高 ¥2,420,000（ルミエール倶楽部）まで、約5倍の幅があります。</p>
+      <p className="mt-3">中央値のクラブ白亜で内訳を見ると、入会金 ¥165,000＋年会費 ¥110,000＋セッティング料 ¥27,500×24回＝¥660,000、合計 ¥935,000。総額の7割は「会うたびの料金」です。だからこそ、比較は入会金ではなく総額で見る必要があります。自分の回数での試算は、本サイトの<Link href="/simulator" className="text-brand underline">料金シミュレーター</Link>でできます。</p>
+
+      <H2>体験談</H2>
+      <p className="mt-4">体験談は、実在の利用者からの投稿だけを掲載します。運営が書いた体験談や口コミは掲載しません。</p>
+      <h3 className="mt-6 text-lg font-bold">交際クラブの体験談</h3>
+      <div className="mt-2 rounded border border-dashed border-[#B9C4D4] bg-[#FAFBFD] p-4">
+        <p>現在、実投稿の受付準備中です。体験談はまだありません。投稿の受付を開始したら、この節に承認済みの体験談だけを掲載します。</p>
+      </div>
+      <h3 className="mt-8 text-lg font-bold">パパ活体験談</h3>
+      <div className="mt-2 rounded border border-dashed border-[#B9C4D4] bg-[#FAFBFD] p-4">
+        <p>現在、実投稿の受付準備中です。体験談はまだありません。架空の体験談は掲載しません。</p>
+      </div>
+
+      <H2>交際クラブのよくある質問</H2>
+      <dl>
+        <dt className="mt-6 font-bold">Q. 交際クラブの入会審査に落ちることはありますか？</dt>
+        <dd className="mt-1">あります。審査の有無と厳しさはクラブごとに違います。このサイトでは、各社の審査や運営体制を「運営体制の透明性」の軸で評価し、各社のページに根拠を書いています。なお、実際に掲載するクラブは、出会い系サイト規制法の届出が確認できたクラブのみに限定する方針です（現在はサンプルデータを表示中）。</dd>
+        <dt className="mt-6 font-bold">Q. お手当は総額に入っていますか？</dt>
+        <dd className="mt-1">入っていません。このサイトの総額は、入会金・年会費・セッティング料という「クラブへ払う費用」だけです。女性へ直接渡すお手当は当事者間で決まるものなので、相場として数字は出しません。</dd>
+        <dt className="mt-6 font-bold">Q. ハイクラスな女性と出会えますか？</dt>
+        <dd className="mt-1">クラブ選びと会員ランクによります。このサイトでは、各社が開示している会員数と女性の年齢層を比較表と各社のページにそのまま表示しています。開示情報の範囲で判断してください。</dd>
+        <dt className="mt-6 font-bold">Q. 地方でも交際クラブは使えますか？</dt>
+        <dd className="mt-1">使えますが、対応エリアはクラブで大きく違います。サンプル8社では、全国6都市対応のエトワール倶楽部、関西特化のクラブ・アメジスト、東京特化のクラブ白亜など、形はさまざまです。比較表の「対応エリア」で、自分の生活圏に合うかを確認してください。</dd>
+      </dl>
+
+      <H2>交際クラブの基礎知識</H2>
+      <p className="mt-4">交際クラブの仕組みや料金、評価の方法をもっと詳しく知りたい方向けに、本サイトに解説を用意しています。</p>
+      <ul className="mt-2 list-disc space-y-1 pl-6">
+        <li><Link href="/method" className="text-brand underline">評価方法と比較のルール（採点式の全文）</Link></li>
+        <li><Link href="/simulator" className="text-brand underline">料金シミュレーター（自分の回数で総額を試算）</Link></li>
+        <li><Link href="/compare" className="text-brand underline">比較表（全項目で比べる）</Link></li>
+        <li><Link href="/about" className="text-brand underline">運営者情報と料金の考え方</Link></li>
+      </ul>
+
+      <H2>関連サービス</H2>
+      <h3 className="mt-6 text-lg font-bold">パパ活アプリ</h3>
+      <div className="mt-2 rounded border border-dashed border-[#B9C4D4] bg-[#FAFBFD] p-4">
+        <p>交際クラブほどの確実性はないものの、手軽に始められるのがパパ活アプリの強みです。この枠は関連サービスの紹介枠ですが、現在はサンプル公開のため、個別サービスの紹介は準備中です。リンクは置いていません。</p>
+      </div>
+      <h3 className="mt-8 text-lg font-bold">既婚者マッチングアプリ</h3>
+      <div className="mt-2 rounded border border-dashed border-[#B9C4D4] bg-[#FAFBFD] p-4">
+        <p>既婚者向けのマッチングサービスも、関連サービスとして紹介する枠です。現在はサンプル公開のため、個別サービスの紹介は準備中です。リンクは置いていません。</p>
+      </div>
+
+      <p className="mt-12 border-t border-[#D5DCE6] pt-4 text-sm text-gray-500">
+        掲載中のクラブ名・料金・順位はすべて架空のサンプルデータで、実在のクラブとは関係ありません。口コミ・体験談は実投稿のみを掲載する方針で、現在は受付準備中です。
+      </p>
     </div>
   );
 }
