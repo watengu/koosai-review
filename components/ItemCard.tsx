@@ -35,6 +35,13 @@ export default function ItemCard({ ranked, rank }: { ranked: RankedItem; rank?: 
           )}
         </div>
       </div>
+      <p className="mt-2">
+        {item.slug.startsWith("sample-") ? (
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">サンプル（架空）</span>
+        ) : (
+          <span className="rounded bg-[#B08D3E] px-2 py-0.5 text-xs font-bold text-white">実在・公式確認済み</span>
+        )}
+      </p>
       {item.summary && <p className="mt-2 text-sm text-gray-600">{item.summary}</p>}
       <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
         <div className="rounded bg-gray-50 p-2">

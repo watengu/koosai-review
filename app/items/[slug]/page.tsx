@@ -60,6 +60,11 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
             className="mt-4 h-64 w-full rounded object-cover object-top"
           />
         )}
+        {!item.slug.startsWith("sample-") && (
+          <p className="mt-3">
+            <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">実在クラブ・公式確認済み</span>
+          </p>
+        )}
         {item.summary && <p className="mt-3 text-gray-700">{item.summary}</p>}
         <p className="mt-3 text-sm text-gray-500">
           総合スコア:{" "}
@@ -147,7 +152,7 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
           </tbody>
         </table>
         <p className="mt-2 text-xs text-gray-400">
-          {vertical.sampleMode
+          {item.slug.startsWith("sample-")
             ? "※ 現在表示しているのはデモ用のサンプルデータです。実在のクラブの情報ではありません。"
             : "※ 編集部が公式情報を一次確認した内容です（編集部調査）。金額は確認時点のもので、最新情報は公式情報をご確認ください。"}
         </p>

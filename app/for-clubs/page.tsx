@@ -41,7 +41,7 @@ export default function ForClubsPage() {
         </p>
         {vertical.sampleMode && (
           <p className="mt-3 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            現在はデモ公開中のため、掲載中クラブはすべて架空のサンプルです。実際のお申し込み受け付けは、
+            現在、掲載中の実在クラブは東京Ritzのみで、その他は架空のサンプルです。実際のお申し込み受け付けは、
             運営者情報の確定後に開始します。
           </p>
         )}
