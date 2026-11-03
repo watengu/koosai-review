@@ -6,15 +6,15 @@ import Link from "next/link";
  * 数字はサンプルデータの実測値（2026-11-02 時点で本番データと照合済み）。
  */
 const clubs = [
-  { slug: "tokyo-ritz", name: "東京Ritz", feature: "創業40年以上の老舗・女性スタッフ対応・お試しあり", score: "86.2", join: "¥110,000", annual: "¥55,000", perUse: "¥33,000", total: "¥957,000", areas: "東京（関東近辺が中心）" },
-  { slug: "sample-amethyst", name: "クラブ・アメジスト", feature: "関西特化・総額を抑えたコース", score: "83.3", join: "¥88,000", annual: "¥55,000", perUse: "¥19,800", total: "¥618,200", areas: "大阪・京都・神戸" },
-  { slug: "sample-etoile", name: "エトワール倶楽部", feature: "全国6都市に面接拠点", score: "82.2", join: "¥110,000", annual: "¥110,000", perUse: "¥22,000", total: "¥748,000", areas: "東京・大阪・名古屋・札幌・仙台・福岡" },
-  { slug: "sample-rin", name: "凛サロン倶楽部", feature: "入会金を抑えた始めやすい価格", score: "80.0", join: "¥55,000", annual: "¥33,000", perUse: "¥16,500", total: "¥484,000", areas: "東京・神奈川・千葉・埼玉" },
-  { slug: "sample-lumiere", name: "ルミエール倶楽部", feature: "銀座の高級会員制", score: "76.7", join: "¥550,000", annual: "¥550,000", perUse: "¥55,000", total: "¥2,420,000", areas: "東京・大阪・名古屋・福岡" },
-  { slug: "sample-vert", name: "サロン・ド・ヴェール", feature: "料金表が分かりやすい中核価格帯", score: "75.6", join: "¥220,000", annual: "¥220,000", perUse: "¥33,000", total: "¥1,232,000", areas: "東京・大阪・京都" },
-  { slug: "sample-hakua", name: "クラブ白亜", feature: "新宿特化・紹介までの速さ", score: "72.2", join: "¥165,000", annual: "¥110,000", perUse: "¥27,500", total: "¥935,000", areas: "東京" },
-  { slug: "sample-sogetsu", name: "倶楽部蒼月", feature: "青山・少人数で質を重視", score: "71.1", join: "¥330,000", annual: "¥330,000", perUse: "¥38,500", total: "¥1,584,000", areas: "東京・横浜" },
-  { slug: "sample-tsukikage", name: "クラブ月影", feature: "麻布の会員制・料金は面接時案内", score: "51.1", join: "¥440,000", annual: "¥440,000", perUse: "非公開", total: "試算不可", areas: "東京" },
+  { slug: "tokyo-ritz", name: "東京Ritz", feature: "創業40年以上の老舗・女性スタッフ対応・お試しあり", score: "86.2", join: "¥110,000", annual: "¥55,000", perUse: "¥33,000", total: "¥957,000", areas: "東京（関東近辺が中心）", checked: "2026-11-03" },
+  { slug: "sample-amethyst", name: "クラブ・アメジスト", feature: "関西特化・総額を抑えたコース", score: "83.3", join: "¥88,000", annual: "¥55,000", perUse: "¥19,800", total: "¥618,200", areas: "大阪・京都・神戸", checked: "2026-11-01" },
+  { slug: "sample-etoile", name: "エトワール倶楽部", feature: "全国6都市に面接拠点", score: "82.2", join: "¥110,000", annual: "¥110,000", perUse: "¥22,000", total: "¥748,000", areas: "東京・大阪・名古屋・札幌・仙台・福岡", checked: "2026-11-01" },
+  { slug: "sample-rin", name: "凛サロン倶楽部", feature: "入会金を抑えた始めやすい価格", score: "80.0", join: "¥55,000", annual: "¥33,000", perUse: "¥16,500", total: "¥484,000", areas: "東京・神奈川・千葉・埼玉", checked: "2026-11-01" },
+  { slug: "sample-lumiere", name: "ルミエール倶楽部", feature: "銀座の高級会員制", score: "76.7", join: "¥550,000", annual: "¥550,000", perUse: "¥55,000", total: "¥2,420,000", areas: "東京・大阪・名古屋・福岡", checked: "2026-11-01" },
+  { slug: "sample-vert", name: "サロン・ド・ヴェール", feature: "料金表が分かりやすい中核価格帯", score: "75.6", join: "¥220,000", annual: "¥220,000", perUse: "¥33,000", total: "¥1,232,000", areas: "東京・大阪・京都", checked: "2026-11-01" },
+  { slug: "sample-hakua", name: "クラブ白亜", feature: "新宿特化・紹介までの速さ", score: "72.2", join: "¥165,000", annual: "¥110,000", perUse: "¥27,500", total: "¥935,000", areas: "東京", checked: "2026-11-01" },
+  { slug: "sample-sogetsu", name: "倶楽部蒼月", feature: "青山・少人数で質を重視", score: "71.1", join: "¥330,000", annual: "¥330,000", perUse: "¥38,500", total: "¥1,584,000", areas: "東京・横浜", checked: "2026-11-01" },
+  { slug: "sample-tsukikage", name: "クラブ月影", feature: "麻布の会員制・料金は面接時案内", score: "51.1", join: "¥440,000", annual: "¥440,000", perUse: "非公開", total: "試算不可", areas: "東京", checked: "2026-11-01" },
 ];
 
 const others = [
@@ -104,7 +104,7 @@ export default function HomePage() {
       <p className="mt-2 text-sm text-gray-500">※金額はサンプルデータです。年会費を含む年間総額は次の比較表で並べています。</p>
 
       <H2>交際クラブおすすめ9社の比較表</H2>
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
             <tr className="bg-brand text-left text-white">
@@ -130,11 +130,50 @@ export default function HomePage() {
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.perUse}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right font-bold">{c.total}</td>
                 <td className="border border-[#D5DCE6] p-2">{c.areas}</td>
-                <td className="border border-[#D5DCE6] p-2">2026-11-01</td>
+                <td className="border border-[#D5DCE6] p-2">{c.checked}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-4 space-y-3 md:hidden">
+        {clubs.map((c, i) => (
+          <article key={c.slug} className="rounded border border-[#D5DCE6] bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="font-bold">
+                <span className="mr-2 text-brand-accent">{i + 1}位</span>
+                <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
+                {c.slug === "tokyo-ritz" && (
+                  <span className="ml-2 rounded bg-[#B08D3E] px-2 py-0.5 text-xs font-bold text-white">実在</span>
+                )}
+              </h3>
+              <p className="shrink-0 text-right">
+                <span className="text-xs text-gray-500">総合</span>{" "}
+                <span className="text-xl font-bold text-[#C73E2C]">{c.score}</span>
+              </p>
+            </div>
+            <p className="mt-1 text-sm text-gray-600">{c.feature}</p>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded bg-gray-50 p-2">
+                <dt className="text-xs text-gray-500">入会金</dt>
+                <dd className="font-bold">{c.join}</dd>
+              </div>
+              <div className="rounded bg-gray-50 p-2">
+                <dt className="text-xs text-gray-500">年会費</dt>
+                <dd className="font-bold">{c.annual}</dd>
+              </div>
+              <div className="rounded bg-gray-50 p-2">
+                <dt className="text-xs text-gray-500">セッティング料</dt>
+                <dd className="font-bold">{c.perUse}</dd>
+              </div>
+              <div className="rounded bg-gray-50 p-2">
+                <dt className="text-xs text-gray-500">年間総額（月2回）</dt>
+                <dd className="font-bold">{c.total}</dd>
+              </div>
+            </dl>
+            <p className="mt-2 text-xs text-gray-500">対応エリア：{c.areas}／最終確認日 {c.checked}</p>
+          </article>
+        ))}
       </div>
       <div className="mt-4 rounded border-2 border-brand bg-[#FBFCFE] p-4">
         <p><strong>この表の採点式</strong>：総合スコア＝評価軸（料金の総額3／料金の公開度2／スタッフ対応2／セッティング速度2／会員層2／キャンセル条件1／対応エリア1／運営体制の透明性2）の重み付き集計（100点満点）。口コミの平均は実投稿が集まるまで採点に入れず「データ不足」と表示します。</p>
