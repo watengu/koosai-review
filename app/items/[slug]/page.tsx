@@ -57,7 +57,7 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.image_url}
-            alt={`${item.name}のイメージ（サンプル）`}
+            alt={item.slug.startsWith("sample-") ? `${item.name}のイメージ（サンプル）` : `${item.name}のイメージ（公式提供）`}
             className="mt-4 h-64 w-full rounded object-cover object-top"
           />
         )}

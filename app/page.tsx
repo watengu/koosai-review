@@ -155,6 +155,8 @@ export default function HomePage() {
 
       <H2>東京Ritzの特徴と編集部の評価</H2>
       <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/clubs/tokyo-ritz.jpg" alt="東京Ritzのイメージ（公式提供）" className="mb-5 h-52 w-full rounded object-cover object-top" />
         <p>
           <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第1位・実在クラブ</span>
           <span className="ml-2 rounded border border-white/50 px-2 py-1 text-xs">公式確認済み</span>

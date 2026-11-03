@@ -12,7 +12,7 @@ export default function ItemCard({ ranked, rank }: { ranked: RankedItem; rank?: 
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.image_url}
-          alt={`${item.name}のイメージ（サンプル）`}
+          alt={item.slug.startsWith("sample-") ? `${item.name}のイメージ（サンプル）` : `${item.name}のイメージ（公式提供）`}
           className="mb-3 h-40 w-full rounded object-cover object-top"
           loading="lazy"
         />
