@@ -129,14 +129,9 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
       </section>
 
       <section>
-        <h2 className="text-xl font-bold">スペック</h2>
+        <h2 className="text-xl font-bold">{typeof item.specs?.fee_classes === "string" ? "男性様会員システム" : "スペック"}</h2>
         <table className="mt-3 w-full border-collapse text-sm">
           <tbody>
-            {typeof item.specs?.fee_classes === "string" && (
-              <tr className="border-b border-gray-200 bg-brand text-white">
-                <th colSpan={2} className="p-2 text-left font-bold">男性会員システム</th>
-              </tr>
-            )}
             <tr className="border-b border-gray-200">
               <th className="w-40 bg-gray-50 p-2 text-left">{vertical.priceModel.joinLabel}</th>
               <td className="p-2">{formatYen(item.price_join)}</td>
