@@ -147,7 +147,7 @@ export default function MethodPage() {
         <p className="mt-3 text-sm leading-relaxed text-gray-700">
           {vertical.itemNoun}の料金・スペックは公式情報を一次確認し、確認した日を
           「最終確認日」として各ページに表示します。金額が公式に確認できない項目は
-          「非公開」「未確認」と表示し、推測で埋めることはありません。
+          項目ごと表示せず、推測で埋めることはありません。
           掲載対象は、関係条例の届出等が確認できるものに限ります。
         </p>
       </section>

@@ -6,11 +6,11 @@ export function formatYen(value: number | null | undefined): string {
   return `${value.toLocaleString("ja-JP")}円`;
 }
 
-/** ISO日時 → YYYY年M月D日 */
+/** ISO日時 → YYYY年M月D日。日付が無い場合は項目ごと出さない方針に合わせ「―」 */
 export function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "未確認";
+  if (!iso) return "―";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "未確認";
+  if (Number.isNaN(d.getTime())) return "―";
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
@@ -19,7 +19,7 @@ export function formatSpecValue(
   value: unknown,
   format: "yen" | "text" | "list",
 ): string {
-  if (value === null || value === undefined || value === "") return "未確認";
+  if (value === null || value === undefined || value === "") return "―";
   if (format === "yen") {
     const n = typeof value === "number" ? value : Number(value);
     return Number.isNaN(n) ? String(value) : formatYen(n);

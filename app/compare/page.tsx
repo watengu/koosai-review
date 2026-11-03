@@ -26,7 +26,7 @@ export default async function ComparePage() {
       <h1 className="text-2xl font-bold">{vertical.itemNoun}比較表</h1>
       <p className="mt-3 text-sm text-gray-600">
         編集部が公式情報を一次確認したスペックと評価軸スコアの横断比較です。
-        「未確認」「非公開」は推測で埋めていません。総額の試算は
+        公表されていない項目は推測で埋めていません（―と表示します）。総額の試算は
         <Link href="/simulator" className="text-brand underline">料金シミュレーター</Link>
         で行えます。
       </p>

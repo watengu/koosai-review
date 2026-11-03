@@ -167,8 +167,8 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
             )}
             {vertical.specFields.map((f) => {
               const value = item.specs?.[f.key];
-              // hide_unconfirmed_specs が立つクラブ（東京Ritz）では、値が無い行は行ごと出さない
-              if (item.specs?.hide_unconfirmed_specs === true && (value === null || value === undefined)) {
+              // 値が無い（未確認の）スペック行は、すべてのクラブで行ごと出さない
+              if (value === null || value === undefined) {
                 return null;
               }
               return (
