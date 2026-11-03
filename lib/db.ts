@@ -13,8 +13,11 @@ import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 
 const connectionString = process.env.DATABASE_URL;
 
+// fetchOptions.cache = "no-store": Next の Data Cache にクエリ結果が残ると、
+// DB 側で文案・画像を更新しても一覧系ページに古い行が残り続ける（実測で発生）。
+// このサイトの規模では毎回 DB から読む方が正しい。
 export const sql: NeonQueryFunction<false, false> | null = connectionString
-  ? neon(connectionString)
+  ? neon(connectionString, { fetchOptions: { cache: "no-store" } })
   : null;
 
 /** DB が使えるかどうか（投稿受付・計測の可否判定用） */
