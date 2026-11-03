@@ -132,6 +132,11 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
         <h2 className="text-xl font-bold">スペック</h2>
         <table className="mt-3 w-full border-collapse text-sm">
           <tbody>
+            {typeof item.specs?.fee_classes === "string" && (
+              <tr className="border-b border-gray-200 bg-brand text-white">
+                <th colSpan={2} className="p-2 text-left font-bold">男性会員システム</th>
+              </tr>
+            )}
             <tr className="border-b border-gray-200">
               <th className="w-40 bg-gray-50 p-2 text-left">{vertical.priceModel.joinLabel}</th>
               <td className="p-2">{formatYen(item.price_join)}</td>
@@ -140,10 +145,29 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
               <th className="bg-gray-50 p-2 text-left">{vertical.priceModel.annualLabel}</th>
               <td className="p-2">{formatYen(item.price_annual)}</td>
             </tr>
-            <tr className="border-b border-gray-200">
-              <th className="bg-gray-50 p-2 text-left">{vertical.priceModel.perUseLabel}</th>
-              <td className="p-2">{formatYen(item.price_per_use)}</td>
-            </tr>
+            {typeof item.specs?.fee_classes === "string" ? (
+              <tr className="border-b border-gray-200">
+                <th className="bg-gray-50 p-2 text-left">紹介料</th>
+                <td className="p-2">{item.specs.fee_classes as string}</td>
+              </tr>
+            ) : (
+              <tr className="border-b border-gray-200">
+                <th className="bg-gray-50 p-2 text-left">{vertical.priceModel.perUseLabel}</th>
+                <td className="p-2">{formatYen(item.price_per_use)}</td>
+              </tr>
+            )}
+            {typeof item.specs?.trial_campaign === "string" && (
+              <tr className="border-b border-gray-200">
+                <th className="bg-gray-50 p-2 text-left">お試しキャンペーン</th>
+                <td className="p-2">{item.specs.trial_campaign as string}</td>
+              </tr>
+            )}
+            {typeof item.specs?.member_rank_access === "string" && (
+              <tr className="border-b border-gray-200">
+                <th className="bg-gray-50 p-2 text-left">紹介可能な女性</th>
+                <td className="p-2">{item.specs.member_rank_access as string}</td>
+              </tr>
+            )}
             {vertical.specFields.map((f) => (
               <tr key={f.key} className="border-b border-gray-200">
                 <th className="bg-gray-50 p-2 text-left">{f.label}</th>
