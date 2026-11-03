@@ -311,3 +311,20 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     return null;
   }
 }
+
+/** クラブ確認用プレビュー: club_access.preview_token が一致する item を、公開状態にかかわらず返す */
+export async function getItemByPreviewToken(token: string): Promise<Item | null> {
+  if (!sql) return null;
+  try {
+    const rows = (await sql`
+      select i.* from public.items i
+      join public.club_access a on a.item_id = i.id
+      where a.preview_token = ${token}
+      limit 1
+    `) as Row[];
+    if (rows.length === 0) return null;
+    return mapItem(rows[0]);
+  } catch {
+    return null;
+  }
+}
