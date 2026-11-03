@@ -17,6 +17,7 @@ import ProfileGallery from "@/components/ProfileGallery";
 import { profilesForClub } from "@/config/profiles";
 
 export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

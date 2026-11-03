@@ -5,6 +5,7 @@ import { vertical } from "@/config/vertical";
 import ItemCard from "@/components/ItemCard";
 
 export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `総合ランキング | ${vertical.itemNoun}比較`,

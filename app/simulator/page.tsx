@@ -4,6 +4,7 @@ import { vertical } from "@/config/vertical";
 import SimulatorClient from "@/components/SimulatorClient";
 
 export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `料金シミュレーター | ${vertical.itemNoun}の総額を試算`,
