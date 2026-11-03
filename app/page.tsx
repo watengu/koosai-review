@@ -57,6 +57,12 @@ export default async function HomePage() {
   const ritzShown = published.has("tokyo-ritz");
   const classyShown = published.has("minami-aoyama-classy");
   const othersShown = others.filter((o) => published.has(o.slug) && o.slug !== top?.slug);
+  // 紹介枠のローテーション: 掲載中の実在クラブの間で、3時間ごとに決定的に切り替える（全訪問者で同じ表示）。
+  // 取り下げ中のクラブは published に含まれないため、自動でローテーションから外れる。
+  const realPublished = shown.filter((c) => !c.slug.startsWith("sample-"));
+  const slot = Math.floor(Date.now() / (3 * 60 * 60 * 1000));
+  const featured = realPublished.length > 0 ? realPublished[slot % realPublished.length] : top;
+  const featuredRank = featured ? shown.findIndex((c) => c.slug === featured.slug) + 1 : 0;
   const realOthers = othersShown.filter((o) => !o.slug.startsWith("sample-"));
   return (
     <div className="leading-loose">
@@ -71,7 +77,7 @@ export default async function HomePage() {
       <p className="mt-3">このページでは、編集部が{total}社の料金・スペックを同じ条件でそろえて確認し、「結局どこがどう違うのか」の結論を出します。採点式は全文公開し、順位は契約の有無で操作しません。確認できなかった項目は、推測で埋めず、項目ごと表示しません。</p>
       <p className="mt-3 text-sm text-gray-500">※掲載中の{total}社のうち、実在クラブは「実在・公式確認済み」と表示した{realShown.map((c) => c.name).join("と")}の{realShown.length}社で、残り{total - realShown.length}社はデモ用のサンプルです。掲載順位は公開した採点式のみで決定します。</p>
 
-      {top?.slug === "tokyo-ritz" ? (
+      {featured?.slug === "tokyo-ritz" ? (
         <>
       <H2>結論：編集部が全項目を確認して選んだ交際クラブは東京Ritz</H2>
       <p className="mt-4"><strong>迷ったら、まずは総合1位の東京Ritzから検討してください。</strong>{total}社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのが、この実在クラブです。理由は大きく3つあります。</p>
@@ -80,6 +86,12 @@ export default async function HomePage() {
       <p className="mt-3"><strong>3つ目は、運営の素性が確認できること。</strong>創業40年以上の老舗で、東京都の条例届出は受理済み、登録番号も公式サイトに明記されています。女性への対応は全て女性スタッフが行い、女性会員は全員が面談後に登録、写真は無加工で掲載されます。</p>
       <p className="mt-3"><strong>ただし！</strong></p>
       <p className="mt-3">全員に東京Ritzが最適とは限りません。高級志向ならルミエール倶楽部、出張が多く全国で使いたいならエトワール倶楽部、とにかく総額を抑えたいなら凛サロン倶楽部（いずれもサンプル）。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。</p>
+        </>
+      ) : featured && !featured.slug.startsWith("sample-") ? (
+        <>
+      <H2>結論：編集部がいま紹介する実在クラブは{featured.name}</H2>
+      <p className="mt-4"><strong>{featured.name}は、公式情報を確認できた実在クラブです。</strong>総合 {featured.score} / 100（{total}社中{featuredRank}位）。年間総額（月2回・1年）は {featured.total}、対応エリアは{featured.areas}です。式と重み、軸ごとの根拠は評価方法ページと詳細ページで全公開しています。</p>
+      <p className="mt-3">この紹介枠は、実在クラブを平等に紹介するため3時間ごとに入れ替わります。順位とスコアは採点式で固定で、入れ替えで変わることはありません。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。</p>
         </>
       ) : top ? (
         <>
@@ -223,7 +235,7 @@ export default async function HomePage() {
       <h3 className="mt-8 text-lg font-bold">⑤運営のサポート体制</h3>
       <p className="mt-2">見落とされがちですが、重要です。面接から紹介までの速さ、キャンセル条件、スタッフ対応の評判。このサイトでは「セッティング速度」「キャンセル条件」を独立した評価軸にして、各社の根拠とあわせて開示しています。あわせて、いつの情報か分かるよう、全社に最終確認日を付けています。</p>
 
-      {top?.slug === "tokyo-ritz" ? (
+      {featured?.slug === "tokyo-ritz" ? (
         <>
       <H2>東京Ritzの特徴と編集部の評価</H2>
       <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
@@ -273,38 +285,46 @@ export default async function HomePage() {
         </p>
       </div>
         </>
-      ) : top ? (
+      ) : featured ? (
         <>
-      <H2>{top.name}の特徴と編集部の評価</H2>
+      <H2>{featured.name}の特徴と編集部の評価</H2>
       <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
         <p>
-          <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第1位{top.slug.startsWith("sample-") ? "" : "・実在クラブ"}</span>
+          <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第{featuredRank}位{featured.slug.startsWith("sample-") ? "" : "・実在クラブ"}</span>
         </p>
-        <p className="mt-3 text-2xl font-bold tracking-wide">{top.name}</p>
-        <p className="mt-3 leading-relaxed text-gray-100">{top.feature}</p>
+        <p className="mt-3 text-2xl font-bold tracking-wide">{featured.name}</p>
+        <p className="mt-3 leading-relaxed text-gray-100">{featured.feature}</p>
         <p className="mt-3">
-          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">{top.score} / 100</span>
-          （{total}社中1位）｜対応エリア：{top.areas}｜最終確認日 {top.checked}
+          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">{featured.score} / 100</span>
+          （{total}社中{featuredRank}位）｜対応エリア：{featured.areas}｜最終確認日 {featured.checked}
         </p>
         <p className="mt-4 text-gray-100">
-          入会金 {top.join}／年会費 {top.annual}／セッティング料 {top.perUse}。年間総額（月2回）は {top.total} です。
+          入会金 {featured.join}／年会費 {featured.annual}／セッティング料 {featured.perUse}。年間総額（月2回）は {featured.total} です。
         </p>
         <p className="mt-4">
-          <Link href={`/items/${top.slug}`} className="inline-block rounded bg-white px-5 py-2 font-bold text-brand">
-            {top.name}の詳細と根拠を見る
+          <Link href={`/items/${featured.slug}`} className="inline-block rounded bg-white px-5 py-2 font-bold text-brand">
+            {featured.name}の詳細と根拠を見る
           </Link>
         </p>
       </div>
         </>
       ) : null}
+      {realPublished.length >= 2 && (
+        <p className="mt-2 text-sm text-gray-500">※この特集枠は、実在クラブを平等に紹介するため3時間ごとに入れ替わります（順位・スコアは変わりません）。</p>
+      )}
 
       <H2>タイプ別おすすめ｜あなたに合う交際クラブはどこ？</H2>
-      {ritzShown && (
+      {featured?.slug === "tokyo-ritz" ? (
         <>
       <h3 className="mt-6 text-lg font-bold">初めて交際クラブを使う人 → 東京Ritz</h3>
       <p className="mt-2">いきなり入会金を払わなくていいのが理由です。東京Ritzにはお試しキャンペーンがあり、紹介料のみで利用を始めて、2回目以降の利用で本入会を判断できます。総合スコアも1位で、届出と運営歴が確認できる実在クラブです。関西にお住まいなら、クラブ・アメジスト（サンプル・総合3位）も候補になります。</p>
         </>
-      )}
+      ) : featured?.slug === "minami-aoyama-classy" ? (
+        <>
+      <h3 className="mt-6 text-lg font-bold">初めて交際クラブを使う人 → 南青山Classy</h3>
+      <p className="mt-2">面談のときに登録女性の写真とプロフィールを見せてもらえ、その場で入会するかどうかを判断できるのが理由です。面談は希望の場所までスタッフが来てくれます。総合 {featured.score}（{total}社中{featuredRank}位）で、届出と運営方針が確認できる実在クラブです。</p>
+        </>
+      ) : null}
       {published.has("sample-lumiere") && (
         <>
       <h3 className="mt-8 text-lg font-bold">ハイクラスな女性と出会いたい人 → ルミエール倶楽部</h3>
