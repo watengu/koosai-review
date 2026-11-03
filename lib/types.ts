@@ -74,7 +74,7 @@ export interface OutLink {
   item_id: string | null;
   label: string;
   url: string;
-  kind: "official" | "affiliate";
+  kind: "official" | "affiliate" | "showcase";
   is_active: boolean;
   /** true のとき /go の計測リダイレクトを経由せず遷移先へ直接リンクする */
   direct: boolean;

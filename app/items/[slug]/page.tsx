@@ -48,6 +48,7 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
   const axisLabels = Object.fromEntries(axes.map((a) => [a.key, a.label]));
   const officialLinks = links.filter((l) => l.kind === "official");
   const affiliateLinks = links.filter((l) => l.kind === "affiliate");
+  const showcaseLinks = links.filter((l) => l.kind === "showcase");
 
   return (
     <div className="space-y-10">
@@ -101,6 +102,22 @@ export default async function ItemDetailPage({ params }: { params: { slug: strin
               </a>
               <span className="text-xs text-gray-500">PR（紹介報酬の対象リンクです）</span>
             </span>
+          ))}
+          {showcaseLinks.map((l) => (
+            <div key={l.id} className="w-full rounded border border-dashed border-[#B9C4D4] bg-[#FAFBFD] p-4">
+              <a
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded border border-brand px-5 py-2 font-bold text-brand"
+              >
+                {l.label}
+              </a>
+              <p className="mt-2 text-xs text-gray-500">
+                ※ これは、当サイトの運営者が制作した交際クラブ向けサイトの見本（販売デモ）へのリンクです。
+                実在の交際クラブの公式サイトではありません。
+              </p>
+            </div>
           ))}
           {links.length === 0 && item.official_url && (
             <a
