@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { cache } from "react";
 import { sql } from "./db";
 import { computeTotalScore } from "./scoring";
 import type {
@@ -148,14 +150,44 @@ export async function getAxes(): Promise<ReviewAxis[]> {
   }
 }
 
+import { PREVIEW_TOKEN_COOKIE } from "./mirror-constants";
+
+/**
+ * ミラー表示中の対象 slug を1件だけ返す（クッキーのトークンから club_access 経由で解決）。
+ * クッキーが無い・トークンが不正・リクエスト外の文脈では null（＝通常の公開表示）。
+ * 返すのは常に最大1件で、他の未公開クラブが混ざることはない（ミラー同士の不可視の根拠）。
+ */
+const getPreviewSlug = cache(async (): Promise<string | null> => {
+  try {
+    const token = cookies().get(PREVIEW_TOKEN_COOKIE)?.value;
+    if (!token || !sql) return null;
+    const rows = (await sql`
+      select i.slug from public.items i
+      join public.club_access a on a.item_id = i.id
+      where a.preview_token = ${token}
+      limit 1
+    `) as Row[];
+    return rows.length > 0 ? String(rows[0].slug) : null;
+  } catch {
+    return null;
+  }
+});
+
 export async function getPublishedItems(): Promise<Item[]> {
   if (!sql) return [];
   try {
-    const rows = (await sql`
-      select * from public.items
-      where is_published = true
-      order by name asc
-    `) as Row[];
+    const previewSlug = await getPreviewSlug();
+    const rows = (await (previewSlug
+      ? sql`
+          select * from public.items
+          where is_published = true or slug = ${previewSlug}
+          order by name asc
+        `
+      : sql`
+          select * from public.items
+          where is_published = true
+          order by name asc
+        `)) as Row[];
     return rows.map(mapItem);
   } catch {
     return [];
@@ -165,11 +197,18 @@ export async function getPublishedItems(): Promise<Item[]> {
 export async function getItemBySlug(slug: string): Promise<Item | null> {
   if (!sql) return null;
   try {
-    const rows = (await sql`
-      select * from public.items
-      where slug = ${slug} and is_published = true
-      limit 1
-    `) as Row[];
+    const previewSlug = await getPreviewSlug();
+    const rows = (await (previewSlug
+      ? sql`
+          select * from public.items
+          where slug = ${slug} and (is_published = true or slug = ${previewSlug})
+          limit 1
+        `
+      : sql`
+          select * from public.items
+          where slug = ${slug} and is_published = true
+          limit 1
+        `)) as Row[];
     return rows.length > 0 ? mapItem(rows[0]) : null;
   } catch {
     return null;

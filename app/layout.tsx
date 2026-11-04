@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import MirrorBanner from "@/components/MirrorBanner";
 import Footer from "@/components/Footer";
 import PrNotice from "@/components/PrNotice";
 import SampleNotice from "@/components/SampleNotice";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body>
+        <MirrorBanner />
         <Header />
         <PrNotice />
         <SampleNotice />

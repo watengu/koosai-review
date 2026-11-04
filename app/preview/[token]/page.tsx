@@ -45,6 +45,11 @@ export default async function ClubPreviewPage({
         {!item.is_published && (
           <p className="mt-1">現在の状態: 未公開（ご確認が取れ次第、公開します）</p>
         )}
+        <p className="mt-2">
+          <a href={`/mirror/${params.token}`} className="font-bold text-brand underline">
+            サイト全体での見え方を確認する（ミラー）
+          </a>
+        </p>
       </div>
       <ClubDetailView item={item} axes={axes} scores={scores} reviews={reviews} links={links} />
     </div>

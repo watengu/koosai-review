@@ -51,9 +51,15 @@ export default async function HomePage() {
     ? new Set(ranking.map((r) => r.item.slug))
     : new Set(clubs.map((c) => c.slug));
   const shown = clubs.filter((c) => published.has(c.slug));
+  // ミラー表示でのみ生える、静的配列に無い掲載クラブ（＝確認中のクラブ本人）。
+  // 通常表示では ranking の全件が静的配列に含まれるため空になり、表示は変わらない。
+  const extraRanked = ranking.filter((r) => !clubs.some((c) => c.slug === r.item.slug));
   const top = shown[0];
-  const total = shown.length;
-  const realShown = shown.filter((c) => !c.slug.startsWith("sample-"));
+  const total = shown.length + extraRanked.length;
+  const realShown = [
+    ...shown.filter((c) => !c.slug.startsWith("sample-")),
+    ...extraRanked.filter((r) => !r.item.slug.startsWith("sample-")).map((r) => ({ name: r.item.name })),
+  ];
   const ritzShown = published.has("tokyo-ritz");
   const classyShown = published.has("minami-aoyama-classy");
   const othersShown = others.filter((o) => published.has(o.slug) && o.slug !== top?.slug);
@@ -120,6 +126,15 @@ export default async function HomePage() {
                 <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{c.score}</td>
               </tr>
             ))}
+            {extraRanked.map((r) => (
+              <tr key={r.item.slug}>
+                <td className="border border-[#D5DCE6] p-2 font-bold">
+                  <Link href={`/items/${r.item.slug}`} className="text-brand hover:underline">{r.item.name}</Link>
+                </td>
+                <td className="border border-[#D5DCE6] p-2">{r.item.summary ? `${r.item.summary.split("。")[0]}。` : "新規掲載の確認中クラブ"}</td>
+                <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{r.totalScore !== null ? r.totalScore.toFixed(1) : "採点中"}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -139,6 +154,13 @@ export default async function HomePage() {
                 <td className="border border-[#D5DCE6] p-2">{c.name}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.join}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.perUse}</td>
+              </tr>
+            ))}
+            {extraRanked.map((r) => (
+              <tr key={r.item.slug}>
+                <td className="border border-[#D5DCE6] p-2">{r.item.name}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_join !== null ? `¥${r.item.price_join.toLocaleString()}` : "―"}</td>
+                <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_per_use !== null ? `¥${r.item.price_per_use.toLocaleString()}` : "―"}</td>
               </tr>
             ))}
           </tbody>
@@ -176,6 +198,31 @@ export default async function HomePage() {
                 <td className="border border-[#D5DCE6] p-2">{c.checked}</td>
               </tr>
             ))}
+            {extraRanked.map((r) => {
+              const areas = Array.isArray(r.item.specs?.areas)
+                ? (r.item.specs.areas as string[]).join("・")
+                : typeof r.item.specs?.location === "string"
+                  ? (r.item.specs.location as string)
+                  : "―";
+              const annualTotal =
+                r.item.price_join !== null && r.item.price_annual !== null && r.item.price_per_use !== null
+                  ? `¥${(r.item.price_join + r.item.price_annual + r.item.price_per_use * 24).toLocaleString()}`
+                  : "―";
+              return (
+                <tr key={r.item.slug}>
+                  <td className="border border-[#D5DCE6] p-2 font-bold">
+                    <Link href={`/items/${r.item.slug}`} className="text-brand hover:underline">{r.item.name}</Link>
+                  </td>
+                  <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{r.totalScore !== null ? r.totalScore.toFixed(1) : "採点中"}</td>
+                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_join !== null ? `¥${r.item.price_join.toLocaleString()}` : "―"}</td>
+                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_annual !== null ? `¥${r.item.price_annual.toLocaleString()}` : "―"}</td>
+                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_per_use !== null ? `¥${r.item.price_per_use.toLocaleString()}` : "―"}</td>
+                  <td className="border border-[#D5DCE6] p-2 text-right font-bold">{annualTotal}</td>
+                  <td className="border border-[#D5DCE6] p-2">{areas}</td>
+                  <td className="border border-[#D5DCE6] p-2">{r.item.last_checked_at ? r.item.last_checked_at.slice(0, 10) : "―"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
