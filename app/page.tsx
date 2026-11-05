@@ -225,7 +225,7 @@ export default async function HomePage() {
               <h3 className="font-bold">
                 <span className="mr-2 text-brand-accent">{rankOf(c)}位</span>
                 <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
-                {c.slug === "tokyo-ritz" && (
+                {!c.slug.startsWith("sample-") && (
                   <span className="ml-2 rounded bg-[#B08D3E] px-2 py-0.5 text-xs font-bold text-white">実在</span>
                 )}
               </h3>
