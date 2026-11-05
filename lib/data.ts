@@ -319,7 +319,10 @@ export async function getRanking(): Promise<RankedItem[]> {
     if (a.totalScore === null && b.totalScore === null) return 0;
     if (a.totalScore === null) return 1;
     if (b.totalScore === null) return -1;
-    return b.totalScore - a.totalScore;
+    if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+    // 同点時は掲載中（公開済み）を先に置く。ミラーの確認中クラブが
+    // 同点の掲載中クラブより上に並ばないための決定的なタイブレーク。
+    return (b.item.is_published ? 1 : 0) - (a.item.is_published ? 1 : 0);
   });
 }
 
