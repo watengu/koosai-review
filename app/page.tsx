@@ -115,16 +115,14 @@ export default async function HomePage() {
       <p className="mt-4">交際クラブって、実際どこがいいのか分かりにくいですよね。料金はクラブごとに公開の仕方が違い、入会金だけ見ても総額は分かりません。</p>
       <p className="mt-3">このページでは、編集部が{total}社の料金・スペックを同じ条件でそろえて確認し、「結局どこがどう違うのか」の結論を出します。採点式は全文公開し、順位は契約の有無で操作しません。確認できなかった項目は、推測で埋めず、項目ごと表示しません。</p>
       <p className="mt-3 text-sm text-gray-500">※掲載中の{total}社のうち、実在クラブは「実在・公式確認済み」と表示した{realShown.map((c) => c.name).join("と")}の{realShown.length}社で、残り{total - realShown.length}社はデモ用のサンプルです。掲載順位は公開した採点式のみで決定します。</p>
+      <p className="mt-3 text-sm text-gray-500">※交際クラブは、都内だけでも60〜100社あると言われる業界です。当サイトが「実在・公式確認済み」と表示するのは、編集部が公式サイトの情報と届出を実際に確認できたクラブだけに限っています。</p>
 
-      {featured?.slug === "tokyo-ritz" ? (
+      {realShown.length >= 2 ? (
         <>
-      <H2>結論：編集部が全項目を確認して選んだ交際クラブは東京Ritz</H2>
-      <p className="mt-4"><strong>迷ったら、まずは総合1位の東京Ritzから検討してください。</strong>{total}社の料金とスペックを同じ物差しで並べたとき、根拠を開示したうえで1位になったのが、この実在クラブです。理由は大きく3つあります。</p>
-      <p className="mt-3"><strong>1つ目は、総合スコアが{total}社で最も高いこと。</strong>総合 93.2 / 100。料金の総額、料金の公開度、スタッフ対応、会員層などの8つの軸に、公式サイトで確認できる実データを当てて集計した結果です。式と重み、軸ごとの根拠はこのページの下と評価方法ページ、詳細ページで全公開しています。</p>
-      <p className="mt-3"><strong>2つ目は、料金がすべて公式に公開され、入会前に試せること。</strong>入会金・年会費・紹介料（3クラス）が公式サイトに明示され、総額は月2回・1年で ¥957,000（スタンダード換算）と先に計算できます。さらに、お試しキャンペーンでは紹介料のみで利用を開始でき、2回目以降の利用で本入会を判断できます。</p>
-      <p className="mt-3"><strong>3つ目は、運営の素性が確認できること。</strong>創業40年以上の老舗で、東京都の条例届出は受理済み、登録番号も公式サイトに明記されています。女性への対応は全て女性スタッフが行い、女性会員は全員が面談後に登録、写真は無加工で掲載されます。</p>
-      <p className="mt-3"><strong>ただし！</strong></p>
-      <p className="mt-3">全員に東京Ritzが最適とは限りません。高級志向ならルミエール倶楽部、出張が多く全国で使いたいならエトワール倶楽部、とにかく総額を抑えたいなら凛サロン倶楽部（いずれもサンプル）。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。</p>
+      <H2>結論：編集部が確認できた実在クラブは{realShown.length}社。決め手は「強みの違い」</H2>
+      <p className="mt-4"><strong>東京Ritz（総合 93.2 / 100・{total}社中1位）</strong>は、創業40年以上の老舗で、料金がすべて公式に公開され、入会前に試せるのが強みです。入会金・年会費・紹介料（3クラス）が公式サイトに明示され、年間総額は ¥957,000（月2回・スタンダード換算）と先に計算できます。お試しキャンペーンでは紹介料のみで利用を始められ、東京都の条例届出も受理済みで、登録番号が公式サイトに明記されています。</p>
+      <p className="mt-3"><strong>南青山Classy（総合 89.3 / 100）</strong>は、南青山の高級クラブで、会員クラス制と対応エリアの広さが強みです。女性もクラス分けされ、全員が面談と身分証明書の提出を経て登録し、写真は無加工で掲載されます。対応エリアは東京・札幌・大阪・福岡の4都市、年間総額の目安は ¥850,000（最安クラス換算）です。</p>
+      <p className="mt-3">迷ったときの決め手は順位ではなく、強みの違いです。老舗の総合力と「まず試せる」形なら東京Ritz、クラス制の高級感と地方都市でも使える形なら南青山Classy。このページでは{total}社すべてを比較し、それぞれの特徴を解説しました。なお、この下の特集枠は実在クラブを平等に紹介するため3時間ごとに入れ替わります（順位・スコアは変わりません）。</p>
         </>
       ) : featured && !featured.slug.startsWith("sample-") ? (
         <>
@@ -264,70 +262,24 @@ export default async function HomePage() {
       <H2>交際クラブの選び方｜見るべき5つの基準</H2>
       <p className="mt-4">では何を基準に交際クラブを選ぶべきか。編集部が比較のときに必ず確認する5つの判断軸がこちら。</p>
       <h3 className="mt-8 text-lg font-bold">①女性の数と質</h3>
-      <p className="mt-2">選択肢が多いほど、理想の相手に出会える確率は上がります。ただし数字は「延べ登録数」なのか「現在の会員数」なのかで意味が変わります。このサイトでは、各社が開示している会員数と女性の年齢層をそのまま並べています（例：エトワール倶楽部 約8,900名／女性20代〜40代、ルミエール倶楽部 約6,500名／女性20代〜30代中心）。公表していない社は、無いものとして扱います。</p>
+      <p className="mt-2">選択肢が多いほど、理想の相手に出会える確率は上がります。ただし数字は「延べ登録数」なのか「現在の会員数」なのかで意味が変わります。このサイトでは、各社が開示している会員数と女性の年齢層をそのまま並べています。実在クラブには会員数を公表していない社もあり、その場合は無いものとして扱い、数字を並べません。</p>
       <h3 className="mt-8 text-lg font-bold">②料金体系はトータルで比較する</h3>
       <p className="mt-2">入会金・年会費・セッティング料を合わせた年間トータルで比較しないと、本当の費用感は分かりません。入会金が安くてもセッティング料が高いクラブもあれば、その逆もあります。だからこのサイトの比較表は、月2回・1年での年間総額を主役にしています。お手当・食事代・ホテル代はクラブへ払う費用ではないので、総額には含めていません。</p>
       <h3 className="mt-8 text-lg font-bold">③対応エリア（全国展開しているか）</h3>
-      <p className="mt-2">東京在住なら選択肢は多いですが、地方在住の方は使えるクラブが限られます。出張で複数都市を行き来する方は、対応エリアの広いクラブの方が使い勝手がいい。{classyShown && "実在クラブでは南青山Classyが4都市（東京・札幌・大阪・福岡）対応で、"}サンプル9社ではエトワール倶楽部が6都市対応で最も広く、逆にクラブ白亜は東京特化です。「広さ」か「地元での密度」か、自分の生活圏で選んでください。</p>
+      <p className="mt-2">東京在住なら選択肢は多いですが、地方在住の方は使えるクラブが限られます。出張で複数都市を行き来する方は、対応エリアの広いクラブの方が使い勝手がいい。{classyShown && "実在クラブでは南青山Classyが4都市（東京・札幌・大阪・福岡）対応で、実在の中で最も広く使えます。"}「広さ」か「地元での密度」か、自分の生活圏で選んでください。</p>
       <h3 className="mt-8 text-lg font-bold">④動画プロフィールの有無</h3>
       <p className="mt-2"><strong>現時点では評価対象外。</strong>現在、比較に必要な動画プロフィールの情報を確認できていないため、本項目は評価対象外としています。確認できていない情報を根拠に順位を付けることはしません。</p>
       <h3 className="mt-8 text-lg font-bold">⑤運営のサポート体制</h3>
       <p className="mt-2">見落とされがちですが、重要です。面接から紹介までの速さ、キャンセル条件、スタッフ対応の評判。このサイトでは「セッティング速度」「キャンセル条件」を独立した評価軸にして、各社の根拠とあわせて開示しています。あわせて、いつの情報か分かるよう、全社に最終確認日を付けています。</p>
 
-      {featured?.slug === "tokyo-ritz" ? (
-        <>
-      <H2>東京Ritzの特徴と編集部の評価</H2>
-      <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/clubs/tokyo-ritz.jpg" alt="東京Ritzのイメージ（公式提供）" className="mb-5 h-52 w-full rounded object-cover object-top" />
-        <p>
-          <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第1位・実在クラブ</span>
-          <span className="ml-2 rounded border border-white/50 px-2 py-1 text-xs">公式確認済み</span>
-        </p>
-        <p className="mt-3 text-2xl font-bold tracking-wide">東京Ritz</p>
-        <p className="mt-3 leading-relaxed text-gray-100">
-          創業40年以上の老舗高級交際クラブ。新宿駅南口から徒歩6分、女性スタッフが対応します。
-          女性会員は全員が面談後に登録し、写真は無加工で掲載。紹介料のみで始められるお試しキャンペーンがあり、
-          入会した男性は全てのランクの女性を紹介可能です。
-        </p>
-        <p className="mt-3">
-          総合スコア <span className="text-xl font-bold text-[#E9CF8F]">93.2 / 100</span>
-          （{total}社中1位・8/8軸で採点）｜拠点：東京（新宿）｜最終確認日 2026-11-03
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded border border-white/25 bg-white/10 p-3">
-            <p className="font-bold">お試しキャンペーン</p>
-            <p className="mt-1 text-sm text-gray-200">紹介料のみで利用を開始でき、2回目以降の利用で本入会を判断できます。</p>
-          </div>
-          <div className="rounded border border-white/25 bg-white/10 p-3">
-            <p className="font-bold">全ランク紹介可能</p>
-            <p className="mt-1 text-sm text-gray-200">入会した男性は、スタンダードからVIPまで全てのランクの女性を紹介可能です。</p>
-          </div>
-          <div className="rounded border border-white/25 bg-white/10 p-3">
-            <p className="font-bold">女性スタッフ対応</p>
-            <p className="mt-1 text-sm text-gray-200">女性への対応は全て女性スタッフ。女性会員は全員が面談後に登録されます。</p>
-          </div>
-          <div className="rounded border border-white/25 bg-white/10 p-3">
-            <p className="font-bold">届出受理済み・老舗</p>
-            <p className="mt-1 text-sm text-gray-200">東京都の条例届出が受理済みで登録番号を明記。前日までのキャンセルは無料です。</p>
-          </div>
-        </div>
-        <p className="mt-4 text-gray-100">
-          入会金 ¥110,000／年会費 ¥55,000／紹介料 ¥33,000（スタンダード）〜¥55,000（VIP）。
-          年間総額（月2回・スタンダード換算）は ¥957,000 です。
-        </p>
-        <p className="mt-4">
-          <Link href="/items/tokyo-ritz" className="inline-block rounded bg-white px-5 py-2 font-bold text-brand">
-            東京Ritzの詳細と根拠を見る
-          </Link>
-          <span className="ml-3 text-sm text-gray-300">公式サイトへのリンクは詳細ページにあります</span>
-        </p>
-      </div>
-        </>
-      ) : featured ? (
+      {featured ? (
         <>
       <H2>{featured.name}の特徴と編集部の評価</H2>
       <div className="mt-4 rounded border-2 border-[#B08D3E] bg-brand p-6 text-white">
+        {featured.slug === "tokyo-ritz" && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src="/images/clubs/tokyo-ritz.jpg" alt="東京Ritzのイメージ（公式提供）" className="mb-5 h-52 w-full rounded object-cover object-top" />
+        )}
         <p>
           <span className="rounded bg-[#B08D3E] px-2 py-1 text-xs font-bold text-white">第{featuredRank}位{featured.slug.startsWith("sample-") ? "" : "・実在クラブ"}</span>
         </p>
@@ -356,7 +308,7 @@ export default async function HomePage() {
       {featured?.slug === "tokyo-ritz" ? (
         <>
       <h3 className="mt-6 text-lg font-bold">初めて交際クラブを使う人 → 東京Ritz</h3>
-      <p className="mt-2">いきなり入会金を払わなくていいのが理由です。東京Ritzにはお試しキャンペーンがあり、紹介料のみで利用を始めて、2回目以降の利用で本入会を判断できます。総合スコアも1位で、届出と運営歴が確認できる実在クラブです。関西にお住まいなら、クラブ・アメジスト（サンプル・総合3位）も候補になります。</p>
+      <p className="mt-2">いきなり入会金を払わなくていいのが理由です。東京Ritzにはお試しキャンペーンがあり、紹介料のみで利用を始めて、2回目以降の利用で本入会を判断できます。総合スコアも1位で、届出と運営歴が確認できる実在クラブです。関西にお住まいなら、大阪に対応する南青山Classyも候補になります。</p>
         </>
       ) : featured?.slug === "minami-aoyama-classy" ? (
         <>
@@ -364,22 +316,22 @@ export default async function HomePage() {
       <p className="mt-2">面談のときに登録女性の写真とプロフィールを見せてもらえ、その場で入会するかどうかを判断できるのが理由です。面談は希望の場所までスタッフが来てくれます。総合 {featured.score}（{total}社中{featuredRank}位）で、届出と運営方針が確認できる実在クラブです。</p>
         </>
       ) : null}
-      {published.has("sample-lumiere") && (
+      {classyShown && (
         <>
-      <h3 className="mt-8 text-lg font-bold">ハイクラスな女性と出会いたい人 → ルミエール倶楽部</h3>
-      <p className="mt-2">銀座に面接サロンを構える高級会員制。厳格な審査と丁寧なコンシェルジュ対応を掲げています。その分、入会金 ¥550,000・年会費 ¥550,000 と費用はサンプル9社で最も高く、年間総額は ¥2,420,000。質への投資として割り切れる方向けです。</p>
+      <h3 className="mt-8 text-lg font-bold">ハイクラスな女性と出会いたい人 → 南青山Classy</h3>
+      <p className="mt-2">南青山の高級交際クラブです。会員クラス制（ゴールド／プラチナ／VIP／VVIP）を採用し、女性もクラス分けされています。女性会員は全員が面談と身分証明書の提出を経て登録し、写真は無加工で掲載。総合 89.3 は実在クラブで2位、年間総額の目安は ¥850,000（最安クラス換算）です。</p>
         </>
       )}
-      {published.has("sample-etoile") && (
+      {classyShown && (
         <>
-      <h3 className="mt-8 text-lg font-bold">地方在住・出張が多い人 → エトワール倶楽部</h3>
-      <p className="mt-2">{classyShown && "実在クラブでは、南青山Classyが東京・札幌・大阪・福岡の4都市対応です。"}サンプルの中では、全国6都市（東京・大阪・名古屋・札幌・仙台・福岡）に面接拠点を持つ大手型で、会員数 約8,900名はサンプル8社で最大です。出張先でも利用しやすいエリア網が特徴で、「地元にクラブがない」が起きにくい設計です。</p>
+      <h3 className="mt-8 text-lg font-bold">地方在住・出張が多い人 → 南青山Classy</h3>
+      <p className="mt-2">対応エリアは東京・札幌・大阪・福岡の4都市で、実在クラブの中では最も広く使えます。面談は希望の場所までスタッフが来てくれる形で、出張の合間でも登録を進めやすい設計です。「地元にクラブがない」が起きにくいのが特徴です。</p>
         </>
       )}
-      {published.has("sample-rin") && (
+      {ritzShown && (
         <>
-      <h3 className="mt-8 text-lg font-bold">コストを抑えたい人 → 凛サロン倶楽部</h3>
-      <p className="mt-2">年間総額 ¥484,000 は全{total}社で最安。入会金を抑えた始めやすい価格設定です。その分、キャンセル条件は厳しめとされています。首都圏（東京・神奈川・千葉・埼玉）が対象エリアです。</p>
+      <h3 className="mt-8 text-lg font-bold">初期費用を抑えたい人 → 東京Ritz</h3>
+      <p className="mt-2">コストの見方は2つあります。初期費用を抑えたいなら東京Ritzで、お試しキャンペーンにより紹介料のみで利用を始められ、本入会は2回目以降の利用で判断できます。一方、年間総額の目安で比べると南青山Classyの ¥850,000 が実在2社では低めで、東京Ritzは ¥957,000（スタンダード換算）です。「始めやすさ」か「年間の総額」かで選んでください。</p>
         </>
       )}
 
@@ -399,9 +351,9 @@ export default async function HomePage() {
         </div>
       ))}
 
-      <H2>費用の目安｜サンプル9社の年間総額を試算すると</H2>
-      <p className="mt-4">この節は個人の利用実績ではなく、サンプルデータからの試算です。月2回・1年続けた場合の年間総額（クラブへ払う費用のみ）は、最安 ¥484,000（凛サロン倶楽部）から最高 ¥2,420,000（ルミエール倶楽部）まで、約5倍の幅があります。</p>
-      <p className="mt-3">中位の価格帯のクラブ白亜で内訳を見ると、入会金 ¥165,000＋年会費 ¥110,000＋セッティング料 ¥27,500×24回＝¥660,000、合計 ¥935,000。総額の7割は「会うたびの料金」です。だからこそ、比較は入会金ではなく総額で見る必要があります。自分の回数での試算は、本サイトの<Link href="/simulator" className="text-brand underline">料金シミュレーター</Link>でできます。</p>
+      <H2>費用の目安｜年間総額を試算すると</H2>
+      <p className="mt-4">月2回・1年続けた場合の年間総額（クラブへ払う費用のみ）で見ると、実在クラブでは南青山Classyが目安 ¥850,000、東京Ritzが ¥957,000（スタンダード換算）です。サンプル9社まで広げると ¥484,000 から ¥2,420,000 まで約5倍の幅があります（サンプル側の数字は、比較の物差しとしての試算です）。</p>
+      <p className="mt-3">東京Ritz（スタンダード）で内訳を見ると、入会金 ¥110,000＋年会費 ¥55,000＋紹介料 ¥33,000×24回＝¥792,000、合計 ¥957,000。総額の8割超は「会うたびの料金」です。だからこそ、比較は入会金ではなく総額で見る必要があります。自分の回数での試算は、本サイトの<Link href="/simulator" className="text-brand underline">料金シミュレーター</Link>でできます。</p>
 
       <H2>体験談</H2>
       <p className="mt-4">体験談は、実在の利用者からの投稿だけを掲載します。運営が書いた体験談や口コミは掲載しません。</p>
@@ -423,7 +375,7 @@ export default async function HomePage() {
         <dt className="mt-6 font-bold">Q. ハイクラスな女性と出会えますか？</dt>
         <dd className="mt-1">クラブ選びと会員ランクによります。このサイトでは、各社が開示している会員数と女性の年齢層を比較表と各社のページにそのまま表示しています。開示情報の範囲で判断してください。</dd>
         <dt className="mt-6 font-bold">Q. 地方でも交際クラブは使えますか？</dt>
-        <dd className="mt-1">使えますが、対応エリアはクラブで大きく違います。{ritzShown && "実在の東京Ritzは関東近辺が中心で地方在住でも利用可能と案内されており、"}{classyShown && "南青山Classyは東京・札幌・大阪・福岡の4都市対応です。"}サンプルでは全国6都市対応のエトワール倶楽部、関西特化のクラブ・アメジスト、東京特化のクラブ白亜など、形はさまざまです。比較表の「対応エリア」で、自分の生活圏に合うかを確認してください。</dd>
+        <dd className="mt-1">使えますが、対応エリアはクラブで大きく違います。{ritzShown && "実在の東京Ritzは関東近辺が中心で地方在住でも利用可能と案内されており、"}{classyShown && "南青山Classyは東京・札幌・大阪・福岡の4都市対応です。"}比較表の「対応エリア」で、自分の生活圏に合うかを確認してください。</dd>
       </dl>
 
       <H2>交際クラブの基礎知識</H2>
