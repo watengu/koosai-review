@@ -24,9 +24,15 @@ export default async function RankingPage() {
         データが不足している評価軸は採点から除外し、その旨を各詳細ページに表示します。
       </p>
       <div className="mt-6 space-y-4">
-        {ranking.map((r, i) => (
-          <ItemCard key={r.item.id} ranked={r} rank={i + 1} />
-        ))}
+        {ranking.map((r) => {
+          // 同率は同順位（例: 89.3 が2件なら両方とも2位）。
+          const rank =
+            1 +
+            ranking.filter(
+              (x) => (x.totalScore ?? -1) > (r.totalScore ?? -1),
+            ).length;
+          return <ItemCard key={r.item.id} ranked={r} rank={rank} />;
+        })}
         {ranking.length === 0 && (
           <p className="text-sm text-gray-500">まだ掲載データがありません。</p>
         )}

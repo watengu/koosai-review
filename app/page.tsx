@@ -63,6 +63,39 @@ export default async function HomePage() {
   const ritzShown = published.has("tokyo-ritz");
   const classyShown = published.has("minami-aoyama-classy");
   const othersShown = others.filter((o) => published.has(o.slug) && o.slug !== top?.slug);
+  // ランキング表の行: 静的クラブと追加クラブ（ミラーの確認中クラブ）を統合し、総合スコア降順に並べる。
+  // 同点は静的側（掲載中クラブ）を先に置く（安定ソート）。通常表示では追加行が無いため従来どおり。
+  type HomeRow = { slug: string; name: string; feature: string; score: string; join: string; annual: string; perUse: string; total: string; areas: string; checked: string };
+  const yen = (n: number | null) => (n !== null ? `¥${n.toLocaleString()}` : "―");
+  const extraRows: HomeRow[] = extraRanked.map((r) => {
+    const areas = Array.isArray(r.item.specs?.areas)
+      ? (r.item.specs.areas as string[]).join("・")
+      : typeof r.item.specs?.location === "string"
+        ? (r.item.specs.location as string)
+        : "―";
+    const annualTotal =
+      r.item.price_join !== null && r.item.price_annual !== null && r.item.price_per_use !== null
+        ? yen(r.item.price_join + r.item.price_annual + r.item.price_per_use * 24)
+        : "―";
+    return {
+      slug: r.item.slug,
+      name: r.item.name,
+      feature: r.item.summary ? `${r.item.summary.split("。")[0]}。` : "新規掲載の確認中クラブ",
+      score: r.totalScore !== null ? r.totalScore.toFixed(1) : "採点中",
+      join: yen(r.item.price_join),
+      annual: yen(r.item.price_annual),
+      perUse: yen(r.item.price_per_use),
+      total: annualTotal,
+      areas,
+      checked: r.item.last_checked_at ? r.item.last_checked_at.slice(0, 10) : "―",
+    };
+  });
+  const rows: HomeRow[] = [...shown, ...extraRows].sort(
+    (a, b) => (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0),
+  );
+  // 同率は同順位（例: 89.3 が2件なら両方とも2位）。
+  const rankOf = (row: HomeRow) =>
+    1 + rows.filter((x) => (parseFloat(x.score) || 0) > (parseFloat(row.score) || 0)).length;
   // 紹介枠のローテーション: 掲載中の実在クラブの間で、3時間ごとに決定的に切り替える（全訪問者で同じ表示）。
   // 取り下げ中のクラブは published に含まれないため、自動でローテーションから外れる。
   const realPublished = shown.filter((c) => !c.slug.startsWith("sample-"));
@@ -117,22 +150,13 @@ export default async function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {shown.map((c) => (
+            {rows.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2 font-bold">
                   <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
                 </td>
                 <td className="border border-[#D5DCE6] p-2">{c.feature}</td>
                 <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{c.score}</td>
-              </tr>
-            ))}
-            {extraRanked.map((r) => (
-              <tr key={r.item.slug}>
-                <td className="border border-[#D5DCE6] p-2 font-bold">
-                  <Link href={`/items/${r.item.slug}`} className="text-brand hover:underline">{r.item.name}</Link>
-                </td>
-                <td className="border border-[#D5DCE6] p-2">{r.item.summary ? `${r.item.summary.split("。")[0]}。` : "新規掲載の確認中クラブ"}</td>
-                <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{r.totalScore !== null ? r.totalScore.toFixed(1) : "採点中"}</td>
               </tr>
             ))}
           </tbody>
@@ -149,18 +173,11 @@ export default async function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {shown.map((c) => (
+            {rows.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2">{c.name}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.join}</td>
                 <td className="border border-[#D5DCE6] p-2 text-right">{c.perUse}</td>
-              </tr>
-            ))}
-            {extraRanked.map((r) => (
-              <tr key={r.item.slug}>
-                <td className="border border-[#D5DCE6] p-2">{r.item.name}</td>
-                <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_join !== null ? `¥${r.item.price_join.toLocaleString()}` : "―"}</td>
-                <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_per_use !== null ? `¥${r.item.price_per_use.toLocaleString()}` : "―"}</td>
               </tr>
             ))}
           </tbody>
@@ -184,7 +201,7 @@ export default async function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {shown.map((c) => (
+            {rows.map((c) => (
               <tr key={c.slug}>
                 <td className="border border-[#D5DCE6] p-2 font-bold">
                   <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
@@ -198,40 +215,15 @@ export default async function HomePage() {
                 <td className="border border-[#D5DCE6] p-2">{c.checked}</td>
               </tr>
             ))}
-            {extraRanked.map((r) => {
-              const areas = Array.isArray(r.item.specs?.areas)
-                ? (r.item.specs.areas as string[]).join("・")
-                : typeof r.item.specs?.location === "string"
-                  ? (r.item.specs.location as string)
-                  : "―";
-              const annualTotal =
-                r.item.price_join !== null && r.item.price_annual !== null && r.item.price_per_use !== null
-                  ? `¥${(r.item.price_join + r.item.price_annual + r.item.price_per_use * 24).toLocaleString()}`
-                  : "―";
-              return (
-                <tr key={r.item.slug}>
-                  <td className="border border-[#D5DCE6] p-2 font-bold">
-                    <Link href={`/items/${r.item.slug}`} className="text-brand hover:underline">{r.item.name}</Link>
-                  </td>
-                  <td className="border border-[#D5DCE6] p-2 font-bold text-[#C73E2C]">{r.totalScore !== null ? r.totalScore.toFixed(1) : "採点中"}</td>
-                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_join !== null ? `¥${r.item.price_join.toLocaleString()}` : "―"}</td>
-                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_annual !== null ? `¥${r.item.price_annual.toLocaleString()}` : "―"}</td>
-                  <td className="border border-[#D5DCE6] p-2 text-right">{r.item.price_per_use !== null ? `¥${r.item.price_per_use.toLocaleString()}` : "―"}</td>
-                  <td className="border border-[#D5DCE6] p-2 text-right font-bold">{annualTotal}</td>
-                  <td className="border border-[#D5DCE6] p-2">{areas}</td>
-                  <td className="border border-[#D5DCE6] p-2">{r.item.last_checked_at ? r.item.last_checked_at.slice(0, 10) : "―"}</td>
-                </tr>
-              );
-            })}
           </tbody>
         </table>
       </div>
       <div className="mt-4 space-y-3 md:hidden">
-        {shown.map((c, i) => (
+        {rows.map((c) => (
           <article key={c.slug} className="rounded border border-[#D5DCE6] bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <h3 className="font-bold">
-                <span className="mr-2 text-brand-accent">{i + 1}位</span>
+                <span className="mr-2 text-brand-accent">{rankOf(c)}位</span>
                 <Link href={`/items/${c.slug}`} className="text-brand hover:underline">{c.name}</Link>
                 {c.slug === "tokyo-ritz" && (
                   <span className="ml-2 rounded bg-[#B08D3E] px-2 py-0.5 text-xs font-bold text-white">実在</span>
