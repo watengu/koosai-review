@@ -19,6 +19,10 @@ export default function Footer() {
         <p className="mt-4 text-xs text-gray-400">
           掲載情報は編集部が一次確認した時点のものです。最新情報は各{vertical.itemNoun}の公式情報でご確認ください。
         </p>
+        <p className="mt-4 border-t border-gray-200 pt-4 text-sm text-gray-700">
+          <span className="font-bold">事実関係について：</span>
+          料金・サービス内容などの事実関係は、各{vertical.itemNoun}が公式サイトで公表している内容に準じます。本サイトの記載と公式サイトの記載が異なる場合は、公式サイトの記載を正としてください。
+        </p>
       </div>
     </footer>
   );
