@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Item } from "@/lib/types";
 import { estimateTotal, rankByTotal } from "@/lib/simulator";
-import { formatYen } from "@/lib/format";
+import { formatSettingFee, formatYen } from "@/lib/format";
 import { vertical } from "@/config/vertical";
 
 /**
@@ -85,7 +85,7 @@ export default function SimulatorClient({ items }: { items: Item[] }) {
                   <>
                     <td className="p-2">{formatYen(item.price_join)}</td>
                     <td className="p-2">{formatYen(item.price_annual)}</td>
-                    <td className="p-2">{formatYen(item.price_per_use)}</td>
+                    <td className="p-2">{formatSettingFee(item)}</td>
                     <td className="p-2 text-gray-400">試算不可（金額非公開あり）</td>
                   </>
                 )}

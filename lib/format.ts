@@ -6,6 +6,34 @@ export function formatYen(value: number | null | undefined): string {
   return `${value.toLocaleString("ja-JP")}円`;
 }
 
+/** セッティング料の表示。コース制クラブ（specs.fee_classes あり）は範囲表記の見出し、それ以外は単価 */
+export function formatSettingFee(item: {
+  price_per_use: number | null | undefined;
+  specs?: Record<string, unknown> | null;
+}): string {
+  const fc = item.specs?.fee_classes;
+  if (typeof fc === "string" && fc.trim()) {
+    const head = fc.split("（")[0].trim();
+    if (head) return head;
+  }
+  return formatYen(item.price_per_use);
+}
+
+/** セッティング料の表示（¥表記版。ホームの表・カード用） */
+export function formatSettingFeeYen(item: {
+  price_per_use: number | null | undefined;
+  specs?: Record<string, unknown> | null;
+}): string {
+  const fc = item.specs?.fee_classes;
+  if (typeof fc === "string" && fc.trim()) {
+    const head = fc.split("（")[0].trim();
+    if (head) return `¥${head.replace(/円/g, "")}`;
+  }
+  return item.price_per_use !== null && item.price_per_use !== undefined
+    ? `¥${item.price_per_use.toLocaleString("ja-JP")}`
+    : "―";
+}
+
 /** ISO日時 → YYYY年M月D日。日付が無い場合は項目ごと出さない方針に合わせ「―」 */
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return "―";

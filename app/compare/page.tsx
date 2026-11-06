@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAxes, getRanking } from "@/lib/data";
-import { formatDate, formatSpecValue, formatYen } from "@/lib/format";
+import { formatDate, formatSettingFee, formatSpecValue, formatYen } from "@/lib/format";
 import { vertical } from "@/config/vertical";
 import ItemCard from "@/components/ItemCard";
 
@@ -58,7 +58,7 @@ export default async function ComparePage() {
                 <td className="p-2">{totalScore !== null ? totalScore.toFixed(1) : "採点中"}</td>
                 <td className="p-2">{formatYen(item.price_join)}</td>
                 <td className="p-2">{formatYen(item.price_annual)}</td>
-                <td className="p-2">{formatYen(item.price_per_use)}</td>
+                <td className="p-2">{formatSettingFee(item)}</td>
                 {specFields.map((f) => (
                   <td key={f.key} className="p-2">
                     {formatSpecValue(item.specs?.[f.key], f.format)}

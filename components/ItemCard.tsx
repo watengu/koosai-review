@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { RankedItem } from "@/lib/types";
-import { formatDate, formatYen } from "@/lib/format";
+import { formatDate, formatSettingFee, formatYen } from "@/lib/format";
 import { vertical } from "@/config/vertical";
 
 /** ランキング/トップで使う対象カード */
@@ -54,7 +54,7 @@ export default function ItemCard({ ranked, rank }: { ranked: RankedItem; rank?: 
         </div>
         <div className="rounded bg-gray-50 p-2">
           <dt className="text-xs text-gray-500">{vertical.priceModel.perUseLabel}</dt>
-          <dd className="font-bold">{formatYen(item.price_per_use)}</dd>
+          <dd className="font-bold">{formatSettingFee(item)}</dd>
         </div>
       </dl>
       <p className="mt-3 text-xs text-gray-500">
