@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  */
 const clubs = [
   { slug: "tokyo-ritz", name: "東京Ritz", feature: "創業40年以上の老舗・女性スタッフ対応・お試しあり", score: "93.2", join: "¥110,000", annual: "¥55,000", perUse: "¥33,000〜55,000", total: "¥957,000", areas: "東京（関東近辺が中心）", checked: "2026-11-03" },
-  { slug: "minami-aoyama-classy", name: "南青山Classy", score: "89.3", join: "¥100,000", annual: "¥30,000", perUse: "¥30,000〜80,000〜", total: "¥850,000", areas: "東京・札幌・大阪・福岡", feature: "4都市対応・会員クラス制・写真は無加工", checked: "2026-11-03" },
+  { slug: "minami-aoyama-classy", name: "南青山Classy", score: "89.3", join: "¥100,000", annual: "¥30,000", perUse: "¥30,000〜80,000", total: "¥850,000", areas: "東京・札幌・大阪・福岡", feature: "4都市対応・会員クラス制・写真は無加工", checked: "2026-11-03" },
   { slug: "sample-amethyst", name: "クラブ・アメジスト", feature: "関西特化・総額を抑えたコース", score: "77.8", join: "¥88,000", annual: "¥55,000", perUse: "¥19,800", total: "¥618,200", areas: "大阪・京都・神戸", checked: "2026-11-01" },
   { slug: "sample-etoile", name: "エトワール倶楽部", feature: "全国6都市に面接拠点", score: "75.6", join: "¥110,000", annual: "¥110,000", perUse: "¥22,000", total: "¥748,000", areas: "東京・大阪・名古屋・札幌・仙台・福岡", checked: "2026-11-01" },
   { slug: "sample-rin", name: "凛サロン倶楽部", feature: "入会金を抑えた始めやすい価格", score: "73.3", join: "¥55,000", annual: "¥33,000", perUse: "¥16,500", total: "¥484,000", areas: "東京・神奈川・千葉・埼玉", checked: "2026-11-01" },
