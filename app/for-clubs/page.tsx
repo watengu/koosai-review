@@ -99,6 +99,23 @@ export default function ForClubsPage() {
         </p>
       </section>
 
+      <section className="rounded border border-[#06C755] bg-[#F4FBF6] p-5 text-center">
+        <h2 className="text-lg font-bold">お問い合わせは、LINE公式アカウントから</h2>
+        <p className="mt-2 text-gray-700">
+          掲載のお申し込み・ご相談は、LINE公式アカウントで受け付けます。
+          クラブ名と公式サイトのURLを送っていただければ、運営から折り返しご連絡します。
+        </p>
+        <p className="mt-4">
+          <span className="inline-block rounded-full bg-[#06C755] px-6 py-3 font-bold text-white opacity-60">
+            LINEで問い合わせる
+          </span>
+          <span className="ml-2 align-middle text-sm font-bold text-gray-500">準備中</span>
+        </p>
+        <p className="mt-3 text-sm text-gray-500">
+          LINE公式アカウントは開設準備中です。開設後、このボタンから友だち追加とお問い合わせができるようになります。
+        </p>
+      </section>
+
       <section className="rounded bg-gray-50 p-5 text-center">
         <p className="font-bold">掲載のお申し込み窓口は、運営者情報の確定後に開設します。</p>
         <p className="mt-2 text-sm text-gray-500">
