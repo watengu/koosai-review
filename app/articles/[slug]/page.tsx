@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArticleBySlug } from "@/lib/data";
+import { getArticleBySlug, getArticles } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 
 export const revalidate = 300;
@@ -24,6 +24,7 @@ export async function generateMetadata({
 export default async function ArticleDetailPage({ params }: { params: { slug: string } }) {
   const article = await getArticleBySlug(params.slug);
   if (!article) notFound();
+  const others = (await getArticles()).filter((a) => a.slug !== article.slug);
 
   const paragraphs = article.body.split(/\n{2,}/).filter(Boolean);
 
@@ -42,6 +43,26 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
           <p key={i} className="whitespace-pre-wrap">{p}</p>
         ))}
       </div>
+      {others.length > 0 && (
+        <section className="mt-12">
+          <h2 className="border-l-[6px] border-brand bg-[#F2F5F9] px-4 py-2.5 text-lg font-bold">ほかのコラム</h2>
+          <ul className="mt-4 space-y-4">
+            {others.map((a) => (
+              <li key={a.id} className="rounded border border-gray-200 p-4">
+                <Link href={`/articles/${a.slug}`} className="text-base font-bold text-brand hover:underline">
+                  {a.title}
+                </Link>
+                <p className="mt-1 text-xs text-gray-500">
+                  {a.kind === "editorial" ? "編集部調査" : "コラム"} ・ {formatDate(a.published_at)}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm">
+            <Link href="/articles" className="text-brand underline">コラム一覧を見る</Link>
+          </p>
+        </section>
+      )}
     </article>
   );
 }
