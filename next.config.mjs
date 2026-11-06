@@ -4,6 +4,15 @@
 // 画像は当面テキスト中心設計のため next/image の外部ローダも前提にしない。
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/for-business",
+        destination: "/for-clubs",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
